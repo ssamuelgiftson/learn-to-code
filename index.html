@@ -1,0 +1,2182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeLab - Learn to Code</title>
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .logo span {
+            color: #ffd700;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 25px;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #ffd700;
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            text-align: center;
+            padding: 60px 20px 40px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #0a0a1a 100%);
+        }
+
+        .hero h1 {
+            font-size: 42px;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: #aaa;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ===== LANGUAGE SELECTOR ===== */
+        .language-selector {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 30px 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .lang-btn {
+            padding: 12px 28px;
+            border: 2px solid #333;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .lang-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .content-area {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* ===== TOPIC NAVIGATION ===== */
+        .topic-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #12122a;
+            border-radius: 12px;
+        }
+
+        .topic-btn {
+            padding: 8px 18px;
+            background: #1e1e3a;
+            color: #bbb;
+            border: 1px solid #2a2a4a;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .topic-btn:hover {
+            background: #2a2a5a;
+            color: white;
+        }
+
+        .topic-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* ===== LESSON CARD ===== */
+        .lesson-card {
+            background: #12122a;
+            border-radius: 16px;
+            padding: 35px;
+            margin-bottom: 25px;
+            border: 1px solid #1e1e3a;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .lesson-card h2 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 26px;
+        }
+
+        .lesson-card .subtitle {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .lesson-card h3 {
+            color: #ffd700;
+            margin: 25px 0 10px;
+            font-size: 18px;
+        }
+
+        .lesson-card p, .lesson-card li {
+            line-height: 1.8;
+            font-size: 15px;
+            color: #ccc;
+        }
+
+        .lesson-card ul {
+            padding-left: 25px;
+            margin: 10px 0;
+        }
+
+        .lesson-card li {
+            margin-bottom: 5px;
+        }
+
+        /* ===== CODE BLOCK ===== */
+        .code-container {
+            position: relative;
+            margin: 15px 0;
+        }
+
+        .code-block {
+            background: #0d0d1a;
+            border: 1px solid #2a2a4a;
+            border-radius: 10px;
+            padding: 20px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+            color: #e0e0e0;
+        }
+
+        .code-block .keyword { color: #c792ea; font-weight: bold; }
+        .code-block .string { color: #c3e88d; }
+        .code-block .comment { color: #546e7a; font-style: italic; }
+        .code-block .function { color: #82aaff; }
+        .code-block .number { color: #f78c6c; }
+        .code-block .type { color: #ffcb6b; }
+        .code-block .operator { color: #89ddff; }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #764ba2;
+        }
+
+        /* ===== OUTPUT BOX ===== */
+        .output-box {
+            background: #0a2a0a;
+            border: 1px solid #1a4a1a;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #4caf50;
+        }
+
+        .output-box::before {
+            content: "▶ Output:";
+            display: block;
+            color: #2e7d32;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        /* ===== TIP BOX ===== */
+        .tip-box {
+            background: #1a1a0a;
+            border-left: 4px solid #ffd700;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .tip-box::before {
+            content: "💡 Tip: ";
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        /* ===== HOW IT WORKS BOX ===== */
+        .how-it-works {
+            background: #0a1a2a;
+            border-left: 4px solid #667eea;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .how-it-works::before {
+            content: "⚙️ How It Works: ";
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        /* ===== PRACTICE SECTION ===== */
+        .practice-section {
+            background: #1a0a2a;
+            border: 1px solid #2a1a4a;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .practice-section h3 {
+            color: #bb86fc;
+            margin-bottom: 15px;
+        }
+
+        .practice-section textarea {
+            width: 100%;
+            min-height: 120px;
+            background: #0d0d1a;
+            color: #e0e0e0;
+            border: 1px solid #2a2a4a;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .practice-section textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .run-btn {
+            margin-top: 10px;
+            padding: 10px 30px;
+            background: linear-gradient(135deg, #4caf50, #2e7d32);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .run-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .practice-output {
+            margin-top: 10px;
+            padding: 15px;
+            background: #0a2a0a;
+            border: 1px solid #1a4a1a;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            color: #4caf50;
+            min-height: 50px;
+            white-space: pre-wrap;
+        }
+
+        /* ===== PROGRESS BAR ===== */
+        .progress-container {
+            background: #1a1a2e;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .progress-container h4 {
+            color: #aaa;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #2a2a4a;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            color: #667eea;
+            font-size: 13px;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        /* ===== QUIZ SECTION ===== */
+        .quiz-section {
+            background: #12122a;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .quiz-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .quiz-option {
+            display: block;
+            padding: 12px 18px;
+            margin: 8px 0;
+            background: #1e1e3a;
+            border: 1px solid #2a2a4a;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #ccc;
+        }
+
+        .quiz-option:hover {
+            border-color: #667eea;
+            background: #2a2a5a;
+        }
+
+        .quiz-option.correct {
+            background: #1a3a1a;
+            border-color: #4caf50;
+            color: #4caf50;
+        }
+
+        .quiz-option.wrong {
+            background: #3a1a1a;
+            border-color: #f44336;
+            color: #f44336;
+        }
+
+        .quiz-result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #555;
+            border-top: 1px solid #1e1e3a;
+            margin-top: 50px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .hero h1 {
+                font-size: 28px;
+            }
+            .lesson-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">&lt;Code<span>Lab</span>/&gt;</div>
+        <nav>
+            <a href="#" onclick="showSection('home')">Home</a>
+            <a href="#" onclick="showSection('lessons')">Lessons</a>
+            <a href="#" onclick="showSection('practice')">Practice</a>
+            <a href="#" onclick="showSection('quiz')">Quiz</a>
+        </nav>
+    </header>
+
+    <div class="hero" id="heroSection">
+        <h1>🚀 Learn to Code, Step by Step</h1>
+        <p>Choose a programming language below and start your coding journey. Switch between languages anytime!</p>
+    </div>
+
+    <!-- LANGUAGE SELECTOR -->
+    <div class="language-selector" id="langSelector">
+        <button class="lang-btn active" onclick="switchLanguage('python')">🐍 Python</button>
+        <button class="lang-btn" onclick="switchLanguage('javascript')">⚡ JavaScript</button>
+        <button class="lang-btn" onclick="switchLanguage('java')">☕ Java</button>
+        <button class="lang-btn" onclick="switchLanguage('c')">⚙️ C Language</button>
+        <button class="lang-btn" onclick="switchLanguage('html')">🌐 HTML & CSS</button>
+    </div>
+
+    <div class="content-area" id="contentArea">
+        <!-- PROGRESS BAR -->
+        <div class="progress-container">
+            <h4>📊 Your Progress in <span id="progressLang">Python</span></h4>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <div class="progress-text" id="progressText">0% Complete</div>
+        </div>
+
+        <!-- TOPIC NAVIGATION -->
+        <div class="topic-nav" id="topicNav"></div>
+
+        <!-- LESSON CONTENT -->
+        <div id="lessonContent"></div>
+
+        <!-- PRACTICE SECTION -->
+        <div id="practiceSection" style="display:none;">
+            <div class="practice-section">
+                <h3>✍️ Try It Yourself</h3>
+                <p style="color: #aaa; margin-bottom: 15px;" id="practicePrompt">Write your code below:</p>
+                <textarea id="codeEditor" placeholder="Type your code here..."></textarea>
+                <br>
+                <button class="run-btn" onclick="runCode()">▶ Run Code</button>
+                <div class="practice-output" id="practiceOutput">Output will appear here...</div>
+            </div>
+        </div>
+
+        <!-- QUIZ SECTION -->
+        <div id="quizSection" style="display:none;"></div>
+    </div>
+
+    <footer>
+        <p>Built with ❤️ by Samuel Giftson | Hosted on GitHub Pages</p>
+        <p style="margin-top: 5px; font-size: 12px;">Keep Learning, Keep Growing! 🌱</p>
+    </footer>
+
+    <script>
+        // =====================================================
+        //  COMPLETE LESSON DATA FOR ALL LANGUAGES
+        // =====================================================
+
+        const lessons = {
+            python: {
+                name: "Python",
+                icon: "🐍",
+                topics: [
+                    {
+                        title: "Introduction to Python",
+                        content: `
+                            <h2>🐍 Introduction to Python</h2>
+                            <p class="subtitle">What is Python and why should you learn it?</p>
+                            <p>Python is one of the most popular and beginner-friendly programming languages in the world. It was created by <strong>Guido van Rossum</strong> in 1991.</p>
+                            
+                            <h3>Why Learn Python?</h3>
+                            <ul>
+                                <li><strong>Easy to read</strong> — Python code looks almost like English</li>
+                                <li><strong>Versatile</strong> — Used in web development, AI, data science, games, and more</li>
+                                <li><strong>Huge community</strong> — Millions of developers and tons of free resources</li>
+                                <li><strong>High demand</strong> — One of the most sought-after skills in tech</li>
+                            </ul>
+
+                            <h3>Your First Python Program</h3>
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="comment"># This is a comment - Python ignores this line</span>
+<span class="comment"># Let's print a greeting!</span>
+
+<span class="function">print</span>(<span class="string">"Hello, World!"</span>)
+<span class="function">print</span>(<span class="string">"My name is Samuel Giftson"</span>)
+<span class="function">print</span>(<span class="string">"I am learning Python!"</span>)
+                                </div>
+                            </div>
+
+                            <div class="output-box">
+Hello, World!
+My name is Samuel Giftson
+I am learning Python!
+                            </div>
+
+                            <div class="how-it-works">
+<strong>print()</strong> is a built-in function that displays text on the screen. Whatever you put inside the parentheses and quotes gets shown as output. The computer reads your code line by line, from top to bottom.
+                            </div>
+
+                            <div class="tip-box">
+Python uses indentation (spaces) to organize code blocks. Always be consistent — use 4 spaces for indentation!
+                            </div>
+                        `
+                    },
+                    {
+                        title: "Variables & Data Types",
+                        content: `
+                            <h2>📦 Variables & Data Types</h2>
+                            <p class="subtitle">Storing and using information in Python</p>
+                            
+                            <p>A <strong>variable</strong> is like a labeled box where you store data. You can put different types of information in it.</p>
+
+                            <h3>Creating Variables</h3>
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="comment"># String - text data (use quotes)</span>
+name = <span class="string">"Samuel"</span>
+school = <span class="string">"St Christopher Academy"</span>
+
+<span class="comment"># Integer - whole numbers</span>
+age = <span class="number">13</span>
+grade = <span class="number">8</span>
+
+<span class="comment"># Float - decimal numbers</span>
+height = <span class="number">5.4</span>
+percentage = <span class="number">95.5</span>
+
+<span class="comment"># Boolean - True or False</span>
+is_student = <span class="keyword">True</span>
+has_passed = <span class="keyword">True</span>
+
+<span class="comment"># Printing variables</span>
+<span class="function">print</span>(<span class="string">"Name:"</span>, name)
+<span class="function">print</span>(<span class="string">"Grade:"</span>, grade)
+<span class="function">print</span>(<span class="string">"Percentage:"</span>, percentage)
+<span class="function">print</span>(<span class="string">"Is Student?"</span>, is_student)
+                                </div>
+                            </div>
+
+                            <div class="output-box">
+Name: Samuel
+Grade: 8
+Percentage: 95.5
+Is Student? True
+                            </div>
+
+                            <div class="how-it-works">
+When Python sees <code>name = "Samuel"</code>, it creates a space in memory, stores "Samuel" there, and labels it "name". Later, when you use <code>name</code>, Python looks up that label and finds "Samuel". The <code>=</code> sign means "store this value", not "equals" like in math.
+                            </div>
+
+                            <h3>Data Types at a Glance</h3>
+                            <div class="code-container">
+                                <div class="code-block">
+<span class="comment"># Check data type using type()</span>
+<span class="function">print</span>(<span class="function">type</span>(name))        <span class="comment"># &lt;class 'str'&gt;</span>
+<span class="function">print</span>(<span class="function">type</span>(age))         <span class="comment"># &lt;class 'int'&gt;</span>
+<span class="function">print</span>(<span class="function">type</span>(height))      <span class="comment"># &lt;class 'float'&gt;</span>
+<span class="function">print</span>(<span class="function">type</span>(is_student))  <span class="comment"># &lt;class 'bool'&gt;</span>
+                                </div>
+                            </div>
+
+                            <div class="tip-box">
+Variable names should be descriptive. Use <code>student_name</code> instead of just <code>x</code>. Python variable names are case-sensitive: <code>Name</code> and <code>name</code> are different!
+                            </div>
+                        `
+                    },
+                    {
+                        title: "Operators & Math",
+                        content: `
+                            <h2>🔢 Operators & Math</h2>
+                            <p class="subtitle">Performing calculations in Python</p>
+
+                            <h3>Arithmetic Operators</h3>
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+a = <span class="number">15</span>
+b = <span class="number">4</span>
+
+<span class="function">print</span>(<span class="string">"Addition:"</span>, a + b)        <span class="comment"># 19</span>
+<span class="function">print</span>(<span class="string">"Subtraction:"</span>, a - b)     <span class="comment"># 11</span>
+<span class="function">print</span>(<span class="string">"Multiplication:"</span>, a * b)  <span class="comment"># 60</span>
+<span class="function">print</span>(<span class="string">"Division:"</span>, a / b)        <span class="comment"># 3.75</span>
+<span class="function">print</span>(<span class="string">"Floor Division:"</span>, a // b) <span class="comment"># 3</span>
+<span class="function">print</span>(<span class="string">"Remainder:"</span>, a % b)       <span class="comment"># 3</span>
+<span class="function">print</span>(<span class="string">"Power:"</span>, a ** b)          <span class="comment"># 50625</span>
+                                </div>
+                            </div>
+
+                            <div class="output-box">
+Addition: 19
+Subtraction: 11
+Multiplication: 60
+Division: 3.75
+Floor Division: 3
+Remainder: 3
+Power: 50625
+                            </div>
+
+                            <div class="how-it-works">
+<code>//</code> (floor division) removes the decimal part. <code>%</code> (modulus) gives the remainder after division — very useful for checking if a number is even or odd! <code>**</code> raises a number to a power, so 15**4 = 15 × 15 × 15 × 15.
+                            </div>
+
+                            <h3>Comparison Operators</h3>
+                            <div class="code-container">
+                                <div class="code-block">
+x = <span class="number">10</span>
+y = <span class="number">20</span>
+
+<span class="function">print</span>(x == y)   <span class="comment"># False (equal to?)</span>
+<span class="function">print</span>(x != y)   <span class="comment"># True  (not equal?)</span>
+<span class="function">print</span>(x < y)    <span class="comment"># True  (less than?)</span>
+<span class="function">print</span>(x > y)    <span class="comment"># False (greater than?)</span>
+<span class="function">print</span>(x <= y)   <span class="comment"># True  (less or equal?)</span>
+<span class="function">print</span>(x >= y)   <span class="comment"># False (greater or equal?)</span>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        title: "If-Else Conditions",
+                        content: `
+                            <h2>🔀 If-Else Conditions</h2>
+                            <p class="subtitle">Making decisions in your code</p>
+
+                            <p>Conditions let your program make decisions — just like you decide what to wear based on the weather!</p>
+
+                            <h3>Basic If-Else</h3>
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+marks = <span class="number">85</span>
+
+<span class="keyword">if</span> marks >= <span class="number">90</span>:
+    <span class="function">print</span>(<span class="string">"Grade: A+ (Outstanding!)"</span>)
+<span class="keyword">elif</span> marks >= <span class="number">80</span>:
+    <span class="function">print</span>(<span class="string">"Grade: A (Excellent!)"</span>)
+<span class="keyword">elif</span> marks >= <span class="number">70</span>:
+    <span class="function">print</span>(<span class="string">"Grade: B (Very Good!)"</span>)
+<span class="keyword">elif</span> marks >= <span class="number">60</span>:
+    <span class="function">print</span>(<span class="string">"Grade: C (Good)"</span>)
+<span class="keyword">else</span>:
+    <span class="function">print</span>(<span class="string">"Need improvement"</span>)
+                                </div>
+                            </div>
+
+                            <div class="output-box">
+Grade: A (Excellent!)
+                            </div>
+
+                            <div class="how-it-works">
+Python checks each condition from top to bottom. When it finds the FIRST true condition, it runs that block and skips the rest. Since 85 >= 90 is False, it moves to 85 >= 80 which is True, so it prints "Grade: A" and stops checking. The <code>else</code> block runs only if ALL conditions above are False.
+                            </div>
+
+                            <h3>Nested Conditions</h3>
+                            <div class="code-container">
+                                <div class="code-block">
+age = <span class="number">13</span>
+has_id = <span class="keyword">True</span>
+
+<span class="keyword">if</span> age >= <span class="number">12</span>:
+    <span class="function">print</span>(<span class="string">"Age is eligible"</span>)
+    <span class="keyword">if</span> has_id:
+        <span class="function">print</span>(<span class="string">"Entry allowed! ✅"</span>)
+    <span class="keyword">else</span>:
+        <span class="function">print</span>(<span class="string">"Please bring your ID"</span>)
+<span class="keyword">else</span>:
+    <span class="function">print</span>(<span class="string">"Sorry, must be 12 or older"</span>)
+                                </div>
+                            </div>
+
+                            <div class="tip-box">
+Pay attention to indentation! The code inside an <code>if</code> block must be indented by 4 spaces. This is how Python knows which lines belong to which condition.
+                            </div>
+                        `
+                    },
+                    {
+                        title: "Loops",
+                        content: `
+                            <h2>🔄 Loops</h2>
+                            <p class="subtitle">Repeating actions automatically</p>
+
+                            <p>Loops let you repeat code without writing it again and again. Think of it like a music playlist on repeat!</p>
+
+                            <h3>For Loop</h3>
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="comment"># Print numbers 1 to 5</span>
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">6</span>):
+    <span class="function">print</span>(<span class="string">"Number:"</span>, i)
+
+<span class="function">print</span>(<span class="string">"---"</span>)
+
+<span class="comment"># Loop through a list</span>
+subjects = [<span class="string">"Math"</span>, <span class="string">"Science"</span>, <span class="string">"Hindi"</span>, <span class="string">"English"</span>]
+<span class="keyword">for</span> subject <span class="keyword">in</span> subjects:
+    <span class="function">print</span>(<span class="string">"I study:"</span>, subject)
+                                </div>
+                            </div>
+
+                            <div class="output-box">
+Number: 1
+Number: 2
+Number: 3
+Number: 4
+Number: 5
+---
+I study: Math
+I study: Science
+I study: Hindi
+I study: English
+                            </div>
+
+                            <h3>While Loop</h3>
+                            <div class="code-container">
+                                <div class="code-block">
+<span class="comment"># Countdown!</span>
+count = <span class="number">5</span>
+<span class="keyword">while</span> count > <span class="number">0</span>:
+    <span class="function">print</span>(count)
+    count = count - <span class="number">1</span>
+
+<span class="function">print</span>(<span class="string">"🚀 Liftoff!"</span>)
+                                </div>
+                            </div>
+
+                            <div class="output-box">
+5
+4
+3
+2
+1
+🚀 Liftoff!
+                            </div>
+
+                            <div class="how-it-works">
+<strong>For loop:</strong> Runs a fixed number of times. <code>range(1, 6)</code> generates numbers 1, 2, 3, 4, 5 (stops before 6).<br><br>
+<strong>While loop:</strong> Keeps running as long as the condition is True. Each time, we subtract 1 from count. When count reaches 0, the condition <code>count > 0</code> becomes False and the loop stops.
+                            </div>
+
+                            <div class="tip-box">
+Be careful with while loops! If you forget to update the condition variable (like <code>count = count - 1</code>), the loop will run forever — that's called an <strong>infinite loop</strong>! 😱
+                            </div>
+                        `
+                    },
+                    {
+                        title: "Functions",
+                        content: `
+                            <h2>🧩 Functions</h2>
+                            <p class="subtitle">Reusable blocks of code</p>
+
+                            <p>A function is like a recipe — you write it once and use it whenever you need it. Functions help organize your code and avoid repetition.</p>
+
+                            <h3>Creating & Calling Functions</h3>
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="comment"># Define a function</span>
+<span class="keyword">def</span> <span class="function">greet</span>(name):
+    <span class="function">print</span>(<span class="string">"Hello, "</span> + name + <span class="string">"! Welcome to CodeLab!"</span>)
+
+<span class="comment"># Call the function</span>
+<span class="function">greet</span>(<span class="string">"Samuel"</span>)
+<span class="function">greet</span>(<span class="string">"Teacher"</span>)
+
+<span class="comment"># Function with return value</span>
+<span class="keyword">def</span> <span class="function">add_marks</span>(math, science, hindi):
+    total = math + science + hindi
+    average = total / <span class="number">3</span>
+    <span class="keyword">return</span> total, average
+
+<span class="comment"># Using the function</span>
+total, avg = <span class="function">add_marks</span>(<span class="number">90</span>, <span class="number">85</span>, <span class="number">88</span>)
+<span class="function">print</span>(<span class="string">"Total:"</span>, total)
+<span class="function">print</span>(<span class="string">"Average:"</span>, avg)
+                                </div>
+                            </div>
+
+                            <div class="output-box">
+Hello, Samuel! Welcome to CodeLab!
+Hello, Teacher! Welcome to CodeLab!
+Total: 263
+Average: 87.66666666666667
+                            </div>
+
+                            <div class="how-it-works">
+<code>def</code> means "define a function". The word after <code>def</code> is the function name. Items in parentheses are <strong>parameters</strong> — they're like blank spaces that get filled when you call the function. <code>return</code> sends a value back to wherever the function was called.
+                            </div>
+                        `
+                    },
+                    {
+                        title: "Lists & Dictionaries",
+                        content: `
+                            <h2>📋 Lists & Dictionaries</h2>
+                            <p class="subtitle">Organizing collections of data</p>
+
+                            <h3>Lists — Ordered Collections</h3>
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="comment"># Creating a list</span>
+subjects = [<span class="string">"Math"</span>, <span class="string">"Science"</span>, <span class="string">"Hindi"</span>, <span class="string">"English"</span>, <span class="string">"Tamil"</span>]
+
+<span class="comment"># Accessing items (index starts at 0!)</span>
+<span class="function">print</span>(subjects[<span class="number">0</span>])      <span class="comment"># Math</span>
+<span class="function">print</span>(subjects[<span class="number">2</span>])      <span class="comment"># Hindi</span>
+<span class="function">print</span>(subjects[-<span class="number">1</span>])     <span class="comment"># Tamil (last item)</span>
+
+<span class="comment"># Adding & removing</span>
+subjects.<span class="function">append</span>(<span class="string">"Computer Science"</span>)
+subjects.<span class="function">remove</span>(<span class="string">"Hindi"</span>)
+<span class="function">print</span>(subjects)
+<span class="function">print</span>(<span class="string">"Total subjects:"</span>, <span class="function">len</span>(subjects))
+                                </div>
+                            </div>
+
+                            <h3>Dictionaries — Key-Value Pairs</h3>
+                            <div class="code-container">
+                                <div class="code-block">
+<span class="comment"># Like a real dictionary: word → meaning</span>
+student = {
+    <span class="string">"name"</span>: <span class="string">"Samuel Giftson"</span>,
+    <span class="string">"grade"</span>: <span class="number">8</span>,
+    <span class="string">"school"</span>: <span class="string">"St Christopher Academy"</span>,
+    <span class="string">"subjects"</span>: [<span class="string">"Math"</span>, <span class="string">"Science"</span>, <span class="string">"Hindi"</span>]
+}
+
+<span class="function">print</span>(student[<span class="string">"name"</span>])
+<span class="function">print</span>(student[<span class="string">"school"</span>])
+
+<span class="comment"># Add new key-value</span>
+student[<span class="string">"hobby"</span>] = <span class="string">"Coding"</span>
+<span class="function">print</span>(student)
+                                </div>
+                            </div>
+
+                            <div class="how-it-works">
+<strong>Lists</strong> use square brackets <code>[]</code> and store items in order. Access items by their position (index), starting from 0.<br><br>
+<strong>Dictionaries</strong> use curly braces <code>{}</code> and store key-value pairs. Access values using their key name, like looking up a word in a dictionary!
+                            </div>
+                        `
+                    }
+                ],
+                quiz: [
+                    {
+                        question: "What function is used to display output in Python?",
+                        options: ["echo()", "print()", "display()", "show()"],
+                        correct: 1
+                    },
+                    {
+                        question: "Which data type stores True or False?",
+                        options: ["String", "Integer", "Float", "Boolean"],
+                        correct: 3
+                    },
+                    {
+                        question: "What does the // operator do?",
+                        options: ["Regular division", "Floor division", "Multiplication", "Power"],
+                        correct: 1
+                    },
+                    {
+                        question: "What is the index of the FIRST item in a Python list?",
+                        options: ["1", "0", "-1", "First"],
+                        correct: 1
+                    },
+                    {
+                        question: "Which keyword defines a function in Python?",
+                        options: ["function", "func", "def", "define"],
+                        correct: 2
+                    }
+                ]
+            },
+            javascript: {
+                name: "JavaScript",
+                icon: "⚡",
+                topics: [
+                    {
+                        title: "Introduction to JavaScript",
+                        content: `
+                            <h2>⚡ Introduction to JavaScript</h2>
+                            <p class="subtitle">The language of the web</p>
+                            <p>JavaScript (JS) is the programming language of the internet. Every website you visit uses JavaScript to make things interactive — buttons, animations, games, and more!</p>
+
+                            <h3>Where Does JavaScript Run?</h3>
+                            <ul>
+                                <li><strong>Browser</strong> — Chrome, Firefox, Edge (built-in!)</li>
+                                <li><strong>Server</strong> — Using Node.js</li>
+                                <li><strong>Mobile Apps</strong> — React Native</li>
+                                <li><strong>Desktop Apps</strong> — Electron</li>
+                            </ul>
+
+                            <h3>Your First JavaScript Program</h3>
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="comment">// Single line comment</span>
+<span class="comment">/* Multi-line comment */</span>
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"Hello, World!"</span>);
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"I am Samuel Giftson"</span>);
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"Learning JavaScript!"</span>);
+
+<span class="comment">// Show a popup in the browser</span>
+<span class="function">alert</span>(<span class="string">"Welcome to JavaScript!"</span>);
+                                </div>
+                            </div>
+
+                            <div class="output-box">
+Hello, World!
+I am Samuel Giftson
+Learning JavaScript!
+                            </div>
+
+                            <div class="how-it-works">
+<code>console.log()</code> prints output to the browser's developer console (press F12 to see it). <code>alert()</code> shows a popup box. Every JavaScript statement ends with a semicolon <code>;</code> — think of it as a full stop in English!
+                            </div>
+
+                            <div class="tip-box">
+You can try JavaScript right now! Open your browser, press F12, go to the "Console" tab, and type <code>console.log("Hello!");</code> then press Enter!
+                            </div>
+                        `
+                    },
+                    {
+                        title: "Variables & Data Types",
+                        content: `
+                            <h2>📦 Variables in JavaScript</h2>
+                            <p class="subtitle">Three ways to store data</p>
+
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="comment">// let — value CAN change later</span>
+<span class="keyword">let</span> age = <span class="number">13</span>;
+age = <span class="number">14</span>;  <span class="comment">// ✅ This works</span>
+
+<span class="comment">// const — value CANNOT change (constant)</span>
+<span class="keyword">const</span> name = <span class="string">"Samuel"</span>;
+<span class="comment">// name = "John";  ❌ ERROR!</span>
+
+<span class="comment">// var — old way (avoid using this)</span>
+<span class="keyword">var</span> school = <span class="string">"St Christopher Academy"</span>;
+
+<span class="comment">// Data types</span>
+<span class="keyword">let</span> grade = <span class="number">8</span>;              <span class="comment">// Number</span>
+<span class="keyword">let</span> height = <span class="number">5.4</span>;           <span class="comment">// Number (JS doesn't separate int/float)</span>
+<span class="keyword">let</span> isStudent = <span class="keyword">true</span>;       <span class="comment">// Boolean</span>
+<span class="keyword">let</span> hobby = <span class="keyword">null</span>;            <span class="comment">// Null (empty on purpose)</span>
+<span class="keyword">let</span> future;                  <span class="comment">// Undefined (no value yet)</span>
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="keyword">typeof</span> name);     <span class="comment">// "string"</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="keyword">typeof</span> grade);    <span class="comment">// "number"</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="keyword">typeof</span> isStudent);<span class="comment">// "boolean"</span>
+                                </div>
+                            </div>
+
+                            <div class="how-it-works">
+Use <code>let</code> when the value will change (like a score). Use <code>const</code> when the value should stay the same (like your name or school). <code>typeof</code> tells you what kind of data a variable holds.
+                            </div>
+                        `
+                    },
+                    {
+                        title: "Operators & Math",
+                        content: `
+                            <h2>🔢 Operators in JavaScript</h2>
+                            <p class="subtitle">Calculations and comparisons</p>
+
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="keyword">let</span> a = <span class="number">15</span>, b = <span class="number">4</span>;
+
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"Add:"</span>, a + b);         <span class="comment">// 19</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"Subtract:"</span>, a - b);    <span class="comment">// 11</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"Multiply:"</span>, a * b);    <span class="comment">// 60</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"Divide:"</span>, a / b);      <span class="comment">// 3.75</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"Remainder:"</span>, a % b);   <span class="comment">// 3</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"Power:"</span>, a ** b);      <span class="comment">// 50625</span>
+
+<span class="comment">// String concatenation</span>
+<span class="keyword">let</span> firstName = <span class="string">"Samuel"</span>;
+<span class="keyword">let</span> lastName = <span class="string">"Giftson"</span>;
+<span class="function">console</span>.<span class="function">log</span>(firstName + <span class="string">" "</span> + lastName);
+
+<span class="comment">// Template literals (modern way)</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">\`My name is \${firstName} \${lastName}\`</span>);
+
+<span class="comment">// Comparison</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="number">5</span> == <span class="string">"5"</span>);    <span class="comment">// true  (loose equality)</span>
+<span class="function">console</span>.<span class="function">log</span>(<span class="number">5</span> === <span class="string">"5"</span>);   <span class="comment">// false (strict equality)</span>
+                                </div>
+                            </div>
+
+                            <div class="how-it-works">
+<code>==</code> checks only the value (loose), but <code>===</code> checks both value AND type (strict). Always prefer <code>===</code> to avoid bugs! Template literals use backticks <code>\`\`</code> and <code>\${}</code> to embed variables inside strings.
+                            </div>
+                        `
+                    },
+                    {
+                        title: "If-Else & Switch",
+                        content: `
+                            <h2>🔀 Conditions in JavaScript</h2>
+                            <p class="subtitle">Making decisions with if-else and switch</p>
+
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="keyword">let</span> marks = <span class="number">85</span>;
+
+<span class="keyword">if</span> (marks >= <span class="number">90</span>) {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Grade: A+"</span>);
+} <span class="keyword">else if</span> (marks >= <span class="number">80</span>) {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Grade: A"</span>);
+} <span class="keyword">else if</span> (marks >= <span class="number">70</span>) {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Grade: B"</span>);
+} <span class="keyword">else</span> {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Need improvement"</span>);
+}
+
+<span class="comment">// Ternary operator (short if-else)</span>
+<span class="keyword">let</span> result = marks >= <span class="number">60</span> ? <span class="string">"Pass"</span> : <span class="string">"Fail"</span>;
+<span class="function">console</span>.<span class="function">log</span>(result);  <span class="comment">// "Pass"</span>
+
+<span class="comment">// Switch statement</span>
+<span class="keyword">let</span> day = <span class="string">"Monday"</span>;
+<span class="keyword">switch</span> (day) {
+    <span class="keyword">case</span> <span class="string">"Monday"</span>:
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Start of the week!"</span>);
+        <span class="keyword">break</span>;
+    <span class="keyword">case</span> <span class="string">"Friday"</span>:
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Weekend is near!"</span>);
+        <span class="keyword">break</span>;
+    <span class="keyword">default</span>:
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Regular day"</span>);
+}
+                                </div>
+                            </div>
+
+                            <div class="how-it-works">
+In JavaScript, conditions go inside <code>()</code> parentheses, and code blocks go inside <code>{}</code> curly braces. The ternary operator <code>condition ? valueIfTrue : valueIfFalse</code> is a shortcut for simple if-else. <code>switch</code> is useful when comparing one value against many options — don't forget <code>break</code>!
+                            </div>
+                        `
+                    },
+                    {
+                        title: "Loops",
+                        content: `
+                            <h2>🔄 Loops in JavaScript</h2>
+                            <p class="subtitle">for, while, and forEach loops</p>
+
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="comment">// For loop</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i <= <span class="number">5</span>; i++) {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Count:"</span>, i);
+}
+
+<span class="comment">// While loop</span>
+<span class="keyword">let</span> count = <span class="number">3</span>;
+<span class="keyword">while</span> (count > <span class="number">0</span>) {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Countdown:"</span>, count);
+    count--;
+}
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"🚀 Go!"</span>);
+
+<span class="comment">// Loop through an array</span>
+<span class="keyword">const</span> subjects = [<span class="string">"Math"</span>, <span class="string">"Science"</span>, <span class="string">"Hindi"</span>];
+
+<span class="comment">// Method 1: for...of</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> subject <span class="keyword">of</span> subjects) {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"I study:"</span>, subject);
+}
+
+<span class="comment">// Method 2: forEach</span>
+subjects.<span class="function">forEach</span>(<span class="keyword">function</span>(subject, index) {
+    <span class="function">console</span>.<span class="function">log</span>(index + <span class="number">1</span> + <span class="string">". "</span> + subject);
+});
+                                </div>
+                            </div>
+
+                            <div class="how-it-works">
+The <code>for</code> loop has three parts: <code>let i = 1</code> (start), <code>i <= 5</code> (condition), <code>i++</code> (increment). <code>i++</code> is shorthand for <code>i = i + 1</code>. <code>for...of</code> is a cleaner way to loop through arrays. <code>forEach</code> is an array method that calls a function for each item.
+                            </div>
+                        `
+                    },
+                    {
+                        title: "Functions",
+                        content: `
+                            <h2>🧩 Functions in JavaScript</h2>
+                            <p class="subtitle">Three ways to create functions</p>
+
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="comment">// 1. Function Declaration</span>
+<span class="keyword">function</span> <span class="function">greet</span>(name) {
+    <span class="keyword">return</span> <span class="string">"Hello, "</span> + name + <span class="string">"!"</span>;
+}
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">greet</span>(<span class="string">"Samuel"</span>));
+
+<span class="comment">// 2. Function Expression</span>
+<span class="keyword">const</span> <span class="function">add</span> = <span class="keyword">function</span>(a, b) {
+    <span class="keyword">return</span> a + b;
+};
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">add</span>(<span class="number">10</span>, <span class="number">20</span>));
+
+<span class="comment">// 3. Arrow Function (modern & short!)</span>
+<span class="keyword">const</span> <span class="function">multiply</span> = (a, b) <span class="operator">=></span> a * b;
+<span class="function">console</span>.<span class="function">log</span>(<span class="function">multiply</span>(<span class="number">5</span>, <span class="number">3</span>));
+
+<span class="comment">// Default parameters</span>
+<span class="keyword">const</span> <span class="function">introduce</span> = (name, grade = <span class="number">8</span>) <span class="operator">=></span> {
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">\`I'm \${name}, studying Grade \${grade}\`</span>);
+};
+<span class="function">introduce</span>(<span class="string">"Samuel"</span>);
+<span class="function">introduce</span>(<span class="string">"Rahul"</span>, <span class="number">9</span>);
+                                </div>
+                            </div>
+
+                            <div class="output-box">
+Hello, Samuel!
+30
+15
+I'm Samuel, studying Grade 8
+I'm Rahul, studying Grade 9
+                            </div>
+
+                            <div class="how-it-works">
+Arrow functions <code>=></code> are a shorter way to write functions. If there's only one expression, you can skip the <code>{}</code> and <code>return</code> keyword. Default parameters provide a fallback value when no argument is passed.
+                            </div>
+                        `
+                    },
+                    {
+                        title: "Arrays & Objects",
+                        content: `
+                            <h2>📋 Arrays & Objects</h2>
+                            <p class="subtitle">Storing collections of data</p>
+
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="comment">// Arrays</span>
+<span class="keyword">let</span> marks = [<span class="number">90</span>, <span class="number">85</span>, <span class="number">92</span>, <span class="number">78</span>, <span class="number">88</span>];
+
+<span class="function">console</span>.<span class="function">log</span>(marks[<span class="number">0</span>]);           <span class="comment">// 90 (first)</span>
+<span class="function">console</span>.<span class="function">log</span>(marks.length);       <span class="comment">// 5</span>
+
+marks.<span class="function">push</span>(<span class="number">95</span>);                  <span class="comment">// Add to end</span>
+marks.<span class="function">pop</span>();                     <span class="comment">// Remove from end</span>
+
+<span class="comment">// Useful array methods</span>
+<span class="keyword">let</span> total = marks.<span class="function">reduce</span>((sum, m) <span class="operator">=></span> sum + m, <span class="number">0</span>);
+<span class="keyword">let</span> highest = Math.<span class="function">max</span>(...marks);
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"Total:"</span>, total);
+<span class="function">console</span>.<span class="function">log</span>(<span class="string">"Highest:"</span>, highest);
+
+<span class="comment">// Objects (like Python dictionaries)</span>
+<span class="keyword">const</span> student = {
+    name: <span class="string">"Samuel Giftson"</span>,
+    grade: <span class="number">8</span>,
+    school: <span class="string">"St Christopher Academy"</span>,
+    subjects: [<span class="string">"Math"</span>, <span class="string">"Science"</span>, <span class="string">"Hindi"</span>],
+    <span class="function">introduce</span>() {
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">\`Hi, I'm \${<span class="keyword">this</span>.name} from \${<span class="keyword">this</span>.school}\`</span>);
+    }
+};
+
+<span class="function">console</span>.<span class="function">log</span>(student.name);
+student.<span class="function">introduce</span>();
+                                </div>
+                            </div>
+
+                            <div class="how-it-works">
+Arrays store ordered lists. Objects store named properties (key-value pairs). Objects can even contain functions (called methods). <code>this</code> inside a method refers to the object itself. <code>reduce()</code> combines all array elements into one value.
+                            </div>
+                        `
+                    }
+                ],
+                quiz: [
+                    {
+                        question: "Which keyword declares a variable that CANNOT be reassigned?",
+                        options: ["let", "var", "const", "static"],
+                        correct: 2
+                    },
+                    {
+                        question: "What does === check in JavaScript?",
+                        options: ["Only value", "Only type", "Value AND type", "Neither"],
+                        correct: 2
+                    },
+                    {
+                        question: "What is the output of: console.log(typeof 42)?",
+                        options: ['"integer"', '"number"', '"float"', '"num"'],
+                        correct: 1
+                    },
+                    {
+                        question: "Which is an arrow function?",
+                        options: ["function() {}", "def func():", "(a, b) => a + b", "func(a, b)"],
+                        correct: 2
+                    },
+                    {
+                        question: "How do you add an item to the end of an array?",
+                        options: [".add()", ".push()", ".append()", ".insert()"],
+                        correct: 1
+                    }
+                ]
+            },
+            java: {
+                name: "Java",
+                icon: "☕",
+                topics: [
+                    {
+                        title: "Introduction to Java",
+                        content: `
+                            <h2>☕ Introduction to Java</h2>
+                            <p class="subtitle">Write once, run anywhere</p>
+                            <p>Java is one of the most widely used programming languages. It powers Android apps, enterprise software, web backends, and much more!</p>
+
+                            <h3>Key Features</h3>
+                            <ul>
+                                <li><strong>Platform Independent</strong> — "Write once, run anywhere" (WORA)</li>
+                                <li><strong>Object-Oriented</strong> — Everything is organized in classes and objects</li>
+                                <li><strong>Strongly Typed</strong> — You must declare the type of every variable</li>
+                                <li><strong>Widely Used</strong> — Android apps, banking systems, web servers</li>
+                            </ul>
+
+                            <h3>Your First Java Program</h3>
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="comment">// Every Java program needs a class</span>
+<span class="keyword">public class</span> <span class="type">HelloWorld</span> {
+    <span class="comment">// main method — where the program starts</span>
+    <span class="keyword">public static void</span> <span class="function">main</span>(<span class="type">String</span>[] args) {
+        System.out.<span class="function">println</span>(<span class="string">"Hello, World!"</span>);
+        System.out.<span class="function">println</span>(<span class="string">"My name is Samuel Giftson"</span>);
+        System.out.<span class="function">println</span>(<span class="string">"I am learning Java!"</span>);
+    }
+}
+                                </div>
+                            </div>
+
+                            <div class="output-box">
+Hello, World!
+My name is Samuel Giftson
+I am learning Java!
+                            </div>
+
+                            <div class="how-it-works">
+Every Java program must be inside a <code>class</code>. The <code>main</code> method is the entry point — Java starts executing from here. <code>System.out.println()</code> prints a line to the console. Every statement ends with a semicolon <code>;</code> and code blocks use curly braces <code>{}</code>.
+                            </div>
+
+                            <div class="tip-box">
+The filename must match the class name! If your class is <code>HelloWorld</code>, the file must be <code>HelloWorld.java</code>.
+                            </div>
+                        `
+                    },
+                    {
+                        title: "Variables & Data Types",
+                        content: `
+                            <h2>📦 Variables & Data Types in Java</h2>
+                            <p class="subtitle">Java is strictly typed — every variable needs a type!</p>
+
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="keyword">public class</span> <span class="type">Variables</span> {
+    <span class="keyword">public static void</span> <span class="function">main</span>(<span class="type">String</span>[] args) {
+        <span class="comment">// Integer types</span>
+        <span class="type">int</span> age = <span class="number">13</span>;
+        <span class="type">int</span> grade = <span class="number">8</span>;
+
+        <span class="comment">// Decimal types</span>
+        <span class="type">double</span> height = <span class="number">5.4</span>;
+        <span class="type">float</span> weight = <span class="number">50.5f</span>;
+
+        <span class="comment">// Text</span>
+        <span class="type">String</span> name = <span class="string">"Samuel Giftson"</span>;
+        <span class="type">char</span> initial = <span class="string">'S'</span>;  <span class="comment">// Single character</span>
+
+        <span class="comment">// Boolean</span>
+        <span class="type">boolean</span> isStudent = <span class="keyword">true</span>;
+
+        System.out.<span class="function">println</span>(<span class="string">"Name: "</span> + name);
+        System.out.<span class="function">println</span>(<span class="string">"Age: "</span> + age);
+        System.out.<span class="function">println</span>(<span class="string">"Height: "</span> + height);
+        System.out.<span class="function">println</span>(<span class="string">"Student: "</span> + isStudent);
+    }
+}
+                                </div>
+                            </div>
+
+                            <div class="how-it-works">
+Unlike Python, Java requires you to declare the type BEFORE the variable name. <code>int</code> for whole numbers, <code>double</code> for decimals, <code>String</code> for text (capital S!), <code>boolean</code> for true/false, <code>char</code> for a single character (uses single quotes).
+                            </div>
+                        `
+                    },
+                    {
+                        title: "If-Else & Switch",
+                        content: `
+                            <h2>🔀 Conditions in Java</h2>
+                            <p class="subtitle">Decision making with if-else and switch</p>
+
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="keyword">public class</span> <span class="type">Conditions</span> {
+    <span class="keyword">public static void</span> <span class="function">main</span>(<span class="type">String</span>[] args) {
+        <span class="type">int</span> marks = <span class="number">85</span>;
+
+        <span class="keyword">if</span> (marks >= <span class="number">90</span>) {
+            System.out.<span class="function">println</span>(<span class="string">"Grade: A+"</span>);
+        } <span class="keyword">else if</span> (marks >= <span class="number">80</span>) {
+            System.out.<span class="function">println</span>(<span class="string">"Grade: A"</span>);
+        } <span class="keyword">else if</span> (marks >= <span class="number">70</span>) {
+            System.out.<span class="function">println</span>(<span class="string">"Grade: B"</span>);
+        } <span class="keyword">else</span> {
+            System.out.<span class="function">println</span>(<span class="string">"Need improvement"</span>);
+        }
+
+        <span class="comment">// Switch statement</span>
+        <span class="type">String</span> day = <span class="string">"Monday"</span>;
+        <span class="keyword">switch</span> (day) {
+            <span class="keyword">case</span> <span class="string">"Monday"</span>:
+                System.out.<span class="function">println</span>(<span class="string">"Start of the week!"</span>);
+                <span class="keyword">break</span>;
+            <span class="keyword">case</span> <span class="string">"Friday"</span>:
+                System.out.<span class="function">println</span>(<span class="string">"Almost weekend!"</span>);
+                <span class="keyword">break</span>;
+            <span class="keyword">default</span>:
+                System.out.<span class="function">println</span>(<span class="string">"Regular day"</span>);
+        }
+    }
+}
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        title: "Loops",
+                        content: `
+                            <h2>🔄 Loops in Java</h2>
+                            <p class="subtitle">for, while, and enhanced for loops</p>
+
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="keyword">public class</span> <span class="type">Loops</span> {
+    <span class="keyword">public static void</span> <span class="function">main</span>(<span class="type">String</span>[] args) {
+        <span class="comment">// For loop</span>
+        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i <= <span class="number">5</span>; i++) {
+            System.out.<span class="function">println</span>(<span class="string">"Count: "</span> + i);
+        }
+
+        <span class="comment">// While loop</span>
+        <span class="type">int</span> count = <span class="number">3</span>;
+        <span class="keyword">while</span> (count > <span class="number">0</span>) {
+            System.out.<span class="function">println</span>(<span class="string">"Countdown: "</span> + count);
+            count--;
+        }
+        System.out.<span class="function">println</span>(<span class="string">"🚀 Liftoff!"</span>);
+
+        <span class="comment">// Enhanced for loop (for arrays)</span>
+        <span class="type">String</span>[] subjects = {<span class="string">"Math"</span>, <span class="string">"Science"</span>, <span class="string">"Hindi"</span>};
+        <span class="keyword">for</span> (<span class="type">String</span> subject : subjects) {
+            System.out.<span class="function">println</span>(<span class="string">"I study: "</span> + subject);
+        }
+    }
+}
+                                </div>
+                            </div>
+
+                            <div class="how-it-works">
+Java's for loop is similar to JavaScript: <code>for (init; condition; update)</code>. The enhanced for loop <code>for (Type item : array)</code> is Java's way of easily looping through arrays — like Python's <code>for item in list</code>. <code>i++</code> means <code>i = i + 1</code> and <code>count--</code> means <code>count = count - 1</code>.
+                            </div>
+                        `
+                    },
+                    {
+                        title: "Methods (Functions)",
+                        content: `
+                            <h2>🧩 Methods in Java</h2>
+                            <p class="subtitle">Functions are called "methods" in Java</p>
+
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="keyword">public class</span> <span class="type">Methods</span> {
+
+    <span class="comment">// Method with no return value</span>
+    <span class="keyword">static void</span> <span class="function">greet</span>(<span class="type">String</span> name) {
+        System.out.<span class="function">println</span>(<span class="string">"Hello, "</span> + name + <span class="string">"!"</span>);
+    }
+
+    <span class="comment">// Method that returns a value</span>
+    <span class="keyword">static</span> <span class="type">int</span> <span class="function">add</span>(<span class="type">int</span> a, <span class="type">int</span> b) {
+        <span class="keyword">return</span> a + b;
+    }
+
+    <span class="comment">// Method to calculate average</span>
+    <span class="keyword">static</span> <span class="type">double</span> <span class="function">average</span>(<span class="type">int</span>[] marks) {
+        <span class="type">int</span> sum = <span class="number">0</span>;
+        <span class="keyword">for</span> (<span class="type">int</span> mark : marks) {
+            sum += mark;
+        }
+        <span class="keyword">return</span> (<span class="type">double</span>) sum / marks.length;
+    }
+
+    <span class="keyword">public static void</span> <span class="function">main</span>(<span class="type">String</span>[] args) {
+        <span class="function">greet</span>(<span class="string">"Samuel"</span>);
+        System.out.<span class="function">println</span>(<span class="string">"Sum: "</span> + <span class="function">add</span>(<span class="number">10</span>, <span class="number">20</span>));
+
+        <span class="type">int</span>[] myMarks = {<span class="number">90</span>, <span class="number">85</span>, <span class="number">88</span>, <span class="number">92</span>};
+        System.out.<span class="function">println</span>(<span class="string">"Average: "</span> + <span class="function">average</span>(myMarks));
+    }
+}
+                                </div>
+                            </div>
+
+                            <div class="how-it-works">
+In Java, you must specify the <strong>return type</strong> of every method. <code>void</code> means it returns nothing. <code>int</code> means it returns a whole number. <code>double</code> means it returns a decimal. You also must declare the types of all parameters. <code>static</code> means the method belongs to the class, not an object.
+                            </div>
+                        `
+                    }
+                ],
+                quiz: [
+                    {
+                        question: "What is the entry point of a Java program?",
+                        options: ["start() method", "main() method", "run() method", "init() method"],
+                        correct: 1
+                    },
+                    {
+                        question: "Which data type stores decimal numbers in Java?",
+                        options: ["int", "String", "double", "boolean"],
+                        correct: 2
+                    },
+                    {
+                        question: "What must the filename match in Java?",
+                        options: ["The package name", "The class name", "The method name", "Anything"],
+                        correct: 1
+                    },
+                    {
+                        question: "Which keyword means a method returns nothing?",
+                        options: ["null", "none", "void", "empty"],
+                        correct: 2
+                    }
+                ]
+            },
+            c: {
+                name: "C Language",
+                icon: "⚙️",
+                topics: [
+                    {
+                        title: "Introduction to C",
+                        content: `
+                            <h2>⚙️ Introduction to C</h2>
+                            <p class="subtitle">The mother of all programming languages</p>
+                            <p>C was created by <strong>Dennis Ritchie</strong> in 1972. It's one of the oldest and most powerful languages. Many modern languages (C++, Java, Python) are inspired by C!</p>
+
+                            <h3>Why Learn C?</h3>
+                            <ul>
+                                <li><strong>Foundation</strong> — Understanding C helps you learn any other language</li>
+                                <li><strong>Fast</strong> — C is very close to hardware, making it super fast</li>
+                                <li><strong>Used in</strong> — Operating systems, embedded systems, game engines</li>
+                            </ul>
+
+                            <h3>Your First C Program</h3>
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="keyword">#include</span> <span class="string">&lt;stdio.h&gt;</span>   <span class="comment">// Standard Input/Output library</span>
+
+<span class="type">int</span> <span class="function">main</span>() {
+    <span class="function">printf</span>(<span class="string">"Hello, World!\\n"</span>);
+    <span class="function">printf</span>(<span class="string">"My name is Samuel Giftson\\n"</span>);
+    <span class="function">printf</span>(<span class="string">"I am learning C!\\n"</span>);
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+                                </div>
+                            </div>
+
+                            <div class="output-box">
+Hello, World!
+My name is Samuel Giftson
+I am learning C!
+                            </div>
+
+                            <div class="how-it-works">
+<code>#include &lt;stdio.h&gt;</code> brings in the library for input/output functions. <code>main()</code> is where the program starts. <code>printf()</code> prints text to the screen. <code>\\n</code> creates a new line. <code>return 0;</code> tells the computer the program finished successfully.
+                            </div>
+                        `
+                    },
+                    {
+                        title: "Variables & Data Types",
+                        content: `
+                            <h2>📦 Variables & Data Types in C</h2>
+                            <p class="subtitle">C is strictly typed like Java</p>
+
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="keyword">#include</span> <span class="string">&lt;stdio.h&gt;</span>
+
+<span class="type">int</span> <span class="function">main</span>() {
+    <span class="comment">// Integer</span>
+    <span class="type">int</span> age = <span class="number">13</span>;
+    <span class="type">int</span> grade = <span class="number">8</span>;
+
+    <span class="comment">// Floating point (decimal)</span>
+    <span class="type">float</span> height = <span class="number">5.4</span>;
+    <span class="type">double</span> percentage = <span class="number">95.75</span>;
+
+    <span class="comment">// Character</span>
+    <span class="type">char</span> initial = <span class="string">'S'</span>;
+
+    <span class="comment">// String (array of characters)</span>
+    <span class="type">char</span> name[] = <span class="string">"Samuel Giftson"</span>;
+
+    <span class="comment">// Printing with format specifiers</span>
+    <span class="function">printf</span>(<span class="string">"Name: %s\\n"</span>, name);
+    <span class="function">printf</span>(<span class="string">"Age: %d\\n"</span>, age);
+    <span class="function">printf</span>(<span class="string">"Height: %.1f\\n"</span>, height);
+    <span class="function">printf</span>(<span class="string">"Percentage: %.2f\\n"</span>, percentage);
+    <span class="function">printf</span>(<span class="string">"Initial: %c\\n"</span>, initial);
+
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+                                </div>
+                            </div>
+
+                            <div class="how-it-works">
+In C, <code>printf()</code> uses format specifiers: <code>%d</code> for integers, <code>%f</code> for floats/doubles, <code>%c</code> for characters, <code>%s</code> for strings. <code>%.1f</code> means show 1 decimal place. C doesn't have a built-in <code>String</code> type — it uses arrays of <code>char</code> instead!
+                            </div>
+                        `
+                    },
+                    {
+                        title: "If-Else Conditions",
+                        content: `
+                            <h2>🔀 Conditions in C</h2>
+                            <p class="subtitle">Decision making</p>
+
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="keyword">#include</span> <span class="string">&lt;stdio.h&gt;</span>
+
+<span class="type">int</span> <span class="function">main</span>() {
+    <span class="type">int</span> marks = <span class="number">85</span>;
+
+    <span class="keyword">if</span> (marks >= <span class="number">90</span>) {
+        <span class="function">printf</span>(<span class="string">"Grade: A+\\n"</span>);
+    } <span class="keyword">else if</span> (marks >= <span class="number">80</span>) {
+        <span class="function">printf</span>(<span class="string">"Grade: A\\n"</span>);
+    } <span class="keyword">else if</span> (marks >= <span class="number">70</span>) {
+        <span class="function">printf</span>(<span class="string">"Grade: B\\n"</span>);
+    } <span class="keyword">else</span> {
+        <span class="function">printf</span>(<span class="string">"Need improvement\\n"</span>);
+    }
+
+    <span class="comment">// Ternary operator</span>
+    <span class="type">char</span> *result = (marks >= <span class="number">60</span>) ? <span class="string">"Pass"</span> : <span class="string">"Fail"</span>;
+    <span class="function">printf</span>(<span class="string">"Result: %s\\n"</span>, result);
+
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        title: "Loops",
+                        content: `
+                            <h2>🔄 Loops in C</h2>
+                            <p class="subtitle">for, while, and do-while loops</p>
+
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="keyword">#include</span> <span class="string">&lt;stdio.h&gt;</span>
+
+<span class="type">int</span> <span class="function">main</span>() {
+    <span class="comment">// For loop</span>
+    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i <= <span class="number">5</span>; i++) {
+        <span class="function">printf</span>(<span class="string">"Count: %d\\n"</span>, i);
+    }
+
+    <span class="comment">// While loop</span>
+    <span class="type">int</span> count = <span class="number">3</span>;
+    <span class="keyword">while</span> (count > <span class="number">0</span>) {
+        <span class="function">printf</span>(<span class="string">"Countdown: %d\\n"</span>, count);
+        count--;
+    }
+    <span class="function">printf</span>(<span class="string">"Liftoff!\\n"</span>);
+
+    <span class="comment">// Do-while loop (runs at least once!)</span>
+    <span class="type">int</span> num = <span class="number">1</span>;
+    <span class="keyword">do</span> {
+        <span class="function">printf</span>(<span class="string">"Number: %d\\n"</span>, num);
+        num++;
+    } <span class="keyword">while</span> (num <= <span class="number">3</span>);
+
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+                                </div>
+                            </div>
+
+                            <div class="how-it-works">
+C has three loop types. <code>for</code> and <code>while</code> work like other languages. <code>do-while</code> is special — it runs the code FIRST, then checks the condition. This guarantees the loop body runs at least once, even if the condition is false!
+                            </div>
+                        `
+                    },
+                    {
+                        title: "Functions",
+                        content: `
+                            <h2>🧩 Functions in C</h2>
+                            <p class="subtitle">Breaking code into reusable pieces</p>
+
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="keyword">#include</span> <span class="string">&lt;stdio.h&gt;</span>
+
+<span class="comment">// Function declaration (prototype)</span>
+<span class="type">void</span> <span class="function">greet</span>(<span class="type">char</span> name[]);
+<span class="type">int</span> <span class="function">add</span>(<span class="type">int</span> a, <span class="type">int</span> b);
+<span class="type">float</span> <span class="function">average</span>(<span class="type">int</span> arr[], <span class="type">int</span> size);
+
+<span class="type">int</span> <span class="function">main</span>() {
+    <span class="function">greet</span>(<span class="string">"Samuel"</span>);
+    <span class="function">printf</span>(<span class="string">"Sum: %d\\n"</span>, <span class="function">add</span>(<span class="number">10</span>, <span class="number">20</span>));
+
+    <span class="type">int</span> marks[] = {<span class="number">90</span>, <span class="number">85</span>, <span class="number">88</span>, <span class="number">92</span>};
+    <span class="function">printf</span>(<span class="string">"Average: %.2f\\n"</span>, <span class="function">average</span>(marks, <span class="number">4</span>));
+
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+
+<span class="comment">// Function definitions</span>
+<span class="type">void</span> <span class="function">greet</span>(<span class="type">char</span> name[]) {
+    <span class="function">printf</span>(<span class="string">"Hello, %s!\\n"</span>, name);
+}
+
+<span class="type">int</span> <span class="function">add</span>(<span class="type">int</span> a, <span class="type">int</span> b) {
+    <span class="keyword">return</span> a + b;
+}
+
+<span class="type">float</span> <span class="function">average</span>(<span class="type">int</span> arr[], <span class="type">int</span> size) {
+    <span class="type">int</span> sum = <span class="number">0</span>;
+    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i < size; i++) {
+        sum += arr[i];
+    }
+    <span class="keyword">return</span> (<span class="type">float</span>) sum / size;
+}
+                                </div>
+                            </div>
+
+                            <div class="how-it-works">
+In C, you often declare functions at the top (prototypes) and define them below <code>main()</code>. You must specify the return type and parameter types. C doesn't know array sizes automatically, so you pass the size as a separate parameter. <code>(float)</code> is called a "cast" — it converts an int to float for accurate division.
+                            </div>
+                        `
+                    }
+                ],
+                quiz: [
+                    {
+                        question: "What header file is needed for printf()?",
+                        options: ["stdlib.h", "stdio.h", "string.h", "math.h"],
+                        correct: 1
+                    },
+                    {
+                        question: "What format specifier prints an integer?",
+                        options: ["%s", "%f", "%d", "%c"],
+                        correct: 2
+                    },
+                    {
+                        question: "Which loop in C always runs at least once?",
+                        options: ["for", "while", "do-while", "foreach"],
+                        correct: 2
+                    },
+                    {
+                        question: "What does 'return 0;' mean in main()?",
+                        options: ["Error occurred", "Program runs again", "Program ended successfully", "Returns zero to a variable"],
+                        correct: 2
+                    }
+                ]
+            },
+            html: {
+                name: "HTML & CSS",
+                icon: "🌐",
+                topics: [
+                    {
+                        title: "Introduction to HTML",
+                        content: `
+                            <h2>🌐 Introduction to HTML</h2>
+                            <p class="subtitle">The skeleton of every website</p>
+                            <p><strong>HTML</strong> (HyperText Markup Language) is not a programming language — it's a <strong>markup language</strong> that structures web content. Every website you see is built with HTML!</p>
+
+                            <h3>Basic HTML Structure</h3>
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="operator">&lt;!DOCTYPE html&gt;</span>
+<span class="operator">&lt;html</span> <span class="type">lang</span>=<span class="string">"en"</span><span class="operator">&gt;</span>
+<span class="operator">&lt;head&gt;</span>
+    <span class="operator">&lt;meta</span> <span class="type">charset</span>=<span class="string">"UTF-8"</span><span class="operator">&gt;</span>
+    <span class="operator">&lt;title&gt;</span>My First Website<span class="operator">&lt;/title&gt;</span>
+<span class="operator">&lt;/head&gt;</span>
+<span class="operator">&lt;body&gt;</span>
+    <span class="operator">&lt;h1&gt;</span>Hello, I'm Samuel!<span class="operator">&lt;/h1&gt;</span>
+    <span class="operator">&lt;p&gt;</span>Welcome to my website.<span class="operator">&lt;/p&gt;</span>
+    <span class="operator">&lt;a</span> <span class="type">href</span>=<span class="string">"https://google.com"</span><span class="operator">&gt;</span>Visit Google<span class="operator">&lt;/a&gt;</span>
+<span class="operator">&lt;/body&gt;</span>
+<span class="operator">&lt;/html&gt;</span>
+                                </div>
+                            </div>
+
+                            <div class="how-it-works">
+HTML uses <strong>tags</strong> enclosed in angle brackets <code>&lt; &gt;</code>. Most tags come in pairs: opening <code>&lt;h1&gt;</code> and closing <code>&lt;/h1&gt;</code>. The <code>&lt;head&gt;</code> section contains metadata (title, links). The <code>&lt;body&gt;</code> section contains everything you see on the page.
+                            </div>
+
+                            <h3>Common HTML Tags</h3>
+                            <div class="code-container">
+                                <div class="code-block">
+<span class="comment">&lt;!-- Headings (h1 = biggest, h6 = smallest) --&gt;</span>
+<span class="operator">&lt;h1&gt;</span>Heading 1<span class="operator">&lt;/h1&gt;</span>
+<span class="operator">&lt;h2&gt;</span>Heading 2<span class="operator">&lt;/h2&gt;</span>
+<span class="operator">&lt;h3&gt;</span>Heading 3<span class="operator">&lt;/h3&gt;</span>
+
+<span class="comment">&lt;!-- Paragraph --&gt;</span>
+<span class="operator">&lt;p&gt;</span>This is a paragraph.<span class="operator">&lt;/p&gt;</span>
+
+<span class="comment">&lt;!-- Bold & Italic --&gt;</span>
+<span class="operator">&lt;strong&gt;</span>Bold text<span class="operator">&lt;/strong&gt;</span>
+<span class="operator">&lt;em&gt;</span>Italic text<span class="operator">&lt;/em&gt;</span>
+
+<span class="comment">&lt;!-- Image --&gt;</span>
+<span class="operator">&lt;img</span> <span class="type">src</span>=<span class="string">"photo.jpg"</span> <span class="type">alt</span>=<span class="string">"My Photo"</span><span class="operator">&gt;</span>
+
+<span class="comment">&lt;!-- List --&gt;</span>
+<span class="operator">&lt;ul&gt;</span>
+    <span class="operator">&lt;li&gt;</span>Math<span class="operator">&lt;/li&gt;</span>
+    <span class="operator">&lt;li&gt;</span>Science<span class="operator">&lt;/li&gt;</span>
+    <span class="operator">&lt;li&gt;</span>Hindi<span class="operator">&lt;/li&gt;</span>
+<span class="operator">&lt;/ul&gt;</span>
+                                </div>
+                            </div>
+                        `
+                    },
+                    {
+                        title: "CSS Basics",
+                        content: `
+                            <h2>🎨 CSS Basics</h2>
+                            <p class="subtitle">Making HTML look beautiful</p>
+                            <p><strong>CSS</strong> (Cascading Style Sheets) controls colors, fonts, spacing, and layout of your webpage.</p>
+
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="operator">&lt;style&gt;</span>
+    <span class="comment">/* Style by tag name */</span>
+    <span class="type">body</span> {
+        <span class="keyword">background-color</span>: <span class="string">#1a1a2e</span>;
+        <span class="keyword">color</span>: <span class="string">white</span>;
+        <span class="keyword">font-family</span>: <span class="string">Arial, sans-serif</span>;
+    }
+
+    <span class="type">h1</span> {
+        <span class="keyword">color</span>: <span class="string">#667eea</span>;
+        <span class="keyword">text-align</span>: <span class="string">center</span>;
+        <span class="keyword">font-size</span>: <span class="string">36px</span>;
+    }
+
+    <span class="comment">/* Style by class name (use .className) */</span>
+    <span class="type">.card</span> {
+        <span class="keyword">background</span>: <span class="string">#12122a</span>;
+        <span class="keyword">padding</span>: <span class="string">20px</span>;
+        <span class="keyword">border-radius</span>: <span class="string">10px</span>;
+        <span class="keyword">margin</span>: <span class="string">15px</span>;
+        <span class="keyword">border</span>: <span class="string">1px solid #333</span>;
+    }
+
+    <span class="comment">/* Style by ID (use #idName) */</span>
+    <span class="type">#special</span> {
+        <span class="keyword">color</span>: <span class="string">#ffd700</span>;
+        <span class="keyword">font-weight</span>: <span class="string">bold</span>;
+    }
+
+    <span class="comment">/* Hover effect */</span>
+    <span class="type">.card:hover</span> {
+        <span class="keyword">border-color</span>: <span class="string">#667eea</span>;
+        <span class="keyword">transform</span>: <span class="string">translateY(-3px)</span>;
+    }
+<span class="operator">&lt;/style&gt;</span>
+                                </div>
+                            </div>
+
+                            <div class="how-it-works">
+CSS rules have a <strong>selector</strong> (what to style) and <strong>declarations</strong> (how to style it). Use tag names directly (<code>h1</code>), dots for classes (<code>.card</code>), and hash for IDs (<code>#special</code>). IDs are unique (one per page), classes can be reused on many elements.
+                            </div>
+                        `
+                    },
+                    {
+                        title: "Forms & Inputs",
+                        content: `
+                            <h2>📝 HTML Forms</h2>
+                            <p class="subtitle">Collecting user input</p>
+
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="operator">&lt;form&gt;</span>
+    <span class="operator">&lt;label</span> <span class="type">for</span>=<span class="string">"name"</span><span class="operator">&gt;</span>Your Name:<span class="operator">&lt;/label&gt;</span>
+    <span class="operator">&lt;input</span> <span class="type">type</span>=<span class="string">"text"</span> <span class="type">id</span>=<span class="string">"name"</span> <span class="type">placeholder</span>=<span class="string">"Enter your name"</span><span class="operator">&gt;</span>
+
+    <span class="operator">&lt;label</span> <span class="type">for</span>=<span class="string">"email"</span><span class="operator">&gt;</span>Email:<span class="operator">&lt;/label&gt;</span>
+    <span class="operator">&lt;input</span> <span class="type">type</span>=<span class="string">"email"</span> <span class="type">id</span>=<span class="string">"email"</span> <span class="type">placeholder</span>=<span class="string">"you@example.com"</span><span class="operator">&gt;</span>
+
+    <span class="operator">&lt;label</span> <span class="type">for</span>=<span class="string">"age"</span><span class="operator">&gt;</span>Age:<span class="operator">&lt;/label&gt;</span>
+    <span class="operator">&lt;input</span> <span class="type">type</span>=<span class="string">"number"</span> <span class="type">id</span>=<span class="string">"age"</span> <span class="type">min</span>=<span class="string">"1"</span> <span class="type">max</span>=<span class="string">"100"</span><span class="operator">&gt;</span>
+
+    <span class="operator">&lt;label&gt;</span>Grade:<span class="operator">&lt;/label&gt;</span>
+    <span class="operator">&lt;select&gt;</span>
+        <span class="operator">&lt;option&gt;</span>Grade 7<span class="operator">&lt;/option&gt;</span>
+        <span class="operator">&lt;option</span> <span class="type">selected</span><span class="operator">&gt;</span>Grade 8<span class="operator">&lt;/option&gt;</span>
+        <span class="operator">&lt;option&gt;</span>Grade 9<span class="operator">&lt;/option&gt;</span>
+    <span class="operator">&lt;/select&gt;</span>
+
+    <span class="operator">&lt;label&gt;</span>
+        <span class="operator">&lt;input</span> <span class="type">type</span>=<span class="string">"checkbox"</span><span class="operator">&gt;</span> I agree to the terms
+    <span class="operator">&lt;/label&gt;</span>
+
+    <span class="operator">&lt;button</span> <span class="type">type</span>=<span class="string">"submit"</span><span class="operator">&gt;</span>Submit<span class="operator">&lt;/button&gt;</span>
+<span class="operator">&lt;/form&gt;</span>
+                                </div>
+                            </div>
+
+                            <div class="how-it-works">
+Forms collect user data. Different <code>type</code> attributes create different inputs: <code>text</code> for names, <code>email</code> with validation, <code>number</code> with min/max, <code>checkbox</code> for yes/no, and <code>select</code> for dropdown menus. The <code>label</code> tag describes what each input is for.
+                            </div>
+                        `
+                    },
+                    {
+                        title: "Flexbox Layout",
+                        content: `
+                            <h2>📐 CSS Flexbox</h2>
+                            <p class="subtitle">Modern layout made easy</p>
+                            <p>Flexbox is the easiest way to arrange items in rows or columns!</p>
+
+                            <div class="code-container">
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button>
+                                <div class="code-block">
+<span class="operator">&lt;style&gt;</span>
+    <span class="type">.container</span> {
+        <span class="keyword">display</span>: <span class="string">flex</span>;                <span class="comment">/* Enable flexbox */</span>
+        <span class="keyword">justify-content</span>: <span class="string">center</span>;      <span class="comment">/* Horizontal alignment */</span>
+        <span class="keyword">align-items</span>: <span class="string">center</span>;          <span class="comment">/* Vertical alignment */</span>
+        <span class="keyword">gap</span>: <span class="string">20px</span>;                    <span class="comment">/* Space between items */</span>
+        <span class="keyword">flex-wrap</span>: <span class="string">wrap</span>;              <span class="comment">/* Wrap to next line */</span>
+    }
+
+    <span class="type">.box</span> {
+        <span class="keyword">background</span>: <span class="string">#667eea</span>;
+        <span class="keyword">color</span>: <span class="string">white</span>;
+        <span class="keyword">padding</span>: <span class="string">30px</span>;
+        <span class="keyword">border-radius</span>: <span class="string">10px</span>;
+        <span class="keyword">text-align</span>: <span class="string">center</span>;
+        <span class="keyword">flex</span>: <span class="string">1</span>;                     <span class="comment">/* Equal width */</span>
+        <span class="keyword">min-width</span>: <span class="string">150px</span>;
+    }
+<span class="operator">&lt;/style&gt;</span>
+
+<span class="operator">&lt;div</span> <span class="type">class</span>=<span class="string">"container"</span><span class="operator">&gt;</span>
+    <span class="operator">&lt;div</span> <span class="type">class</span>=<span class="string">"box"</span><span class="operator">&gt;</span>Math<span class="operator">&lt;/div&gt;</span>
+    <span class="operator">&lt;div</span> <span class="type">class</span>=<span class="string">"box"</span><span class="operator">&gt;</span>Science<span class="operator">&lt;/div&gt;</span>
+    <span class="operator">&lt;div</span> <span class="type">class</span>=<span class="string">"box"</span><span class="operator">&gt;</span>Hindi<span class="operator">&lt;/div&gt;</span>
+    <span class="operator">&lt;div</span> <span class="type">class</span>=<span class="string">"box"</span><span class="operator">&gt;</span>English<span class="operator">&lt;/div&gt;</span>
+<span class="operator">&lt;/div&gt;</span>
+                                </div>
+                            </div>
+
+                            <div class="how-it-works">
+<code>display: flex</code> turns a container into a flex container. <code>justify-content</code> controls horizontal alignment (center, space-between, space-around). <code>align-items</code> controls vertical alignment. <code>gap</code> adds space between items. <code>flex: 1</code> makes all items share equal width.
+                            </div>
+                        `
+                    }
+                ],
+                quiz: [
+                    {
+                        question: "What does HTML stand for?",
+                        options: ["Hyper Text Making Language", "HyperText Markup Language", "Home Tool Markup Language", "Hyper Transfer Markup Language"],
+                        correct: 1
+                    },
+                    {
+                        question: "Which tag makes text bold?",
+                        options: ["<b> or <strong>", "<bold>", "<heavy>", "<em>"],
+                        correct: 0
+                    },
+                    {
+                        question: "What CSS property changes text color?",
+                        options: ["text-color", "font-color", "color", "text-style"],
+                        correct: 2
+                    },
+                    {
+                        question: "How do you select a class in CSS?",
+                        options: ["#className", ".className", "className", "*className"],
+                        correct: 1
+                    }
+                ]
+            }
+        };
+
+        // =====================================================
+        //  STATE MANAGEMENT
+        // =====================================================
+        let currentLang = 'python';
+        let currentTopic = 0;
+        let currentSection = 'lessons';
+        let progress = {
+            python: 0, javascript: 0, java: 0, c: 0, html: 0
+        };
+
+        // =====================================================
+        //  CORE FUNCTIONS
+        // =====================================================
+
+        function switchLanguage(lang) {
+            currentLang = lang;
+            currentTopic = 0;
+
+            // Update button states
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update progress label
+            document.getElementById('progressLang').textContent = lessons[lang].name;
+            updateProgress();
+
+            // Render content
+            renderTopicNav();
+            renderLesson();
+        }
+
+        function renderTopicNav() {
+            const nav = document.getElementById('topicNav');
+            const topics = lessons[currentLang].topics;
+            nav.innerHTML = topics.map((topic, i) =>
+                `<button class="topic-btn ${i === currentTopic ? 'active' : ''}"
+                         onclick="selectTopic(${i})">${topic.title}</button>`
+            ).join('');
+        }
+
+        function selectTopic(index) {
+            currentTopic = index;
+            renderTopicNav();
+            renderLesson();
+
+            // Update progress
+            const totalTopics = lessons[currentLang].topics.length;
+            const progressPercent = Math.round(((index + 1) / totalTopics) * 100);
+            progress[currentLang] = Math.max(progress[currentLang], progressPercent);
+            updateProgress();
+        }
+
+        function renderLesson() {
+            const content = document.getElementById('lessonContent');
+            const topic = lessons[currentLang].topics[currentTopic];
+            content.innerHTML = `<div class="lesson-card">${topic.content}</div>`;
+
+            // Show/hide sections
+            document.getElementById('lessonContent').style.display = 'block';
+            document.getElementById('practiceSection').style.display = 'none';
+            document.getElementById('quizSection').style.display = 'none';
+        }
+
+        function updateProgress() {
+            const fill = document.getElementById('progressFill');
+            const text = document.getElementById('progressText');
+            fill.style.width = progress[currentLang] + '%';
+            text.textContent = progress[currentLang] + '% Complete';
+        }
+
+        function showSection(section) {
+            currentSection = section;
+
+            if (section === 'home') {
+                document.getElementById('heroSection').style.display = 'block';
+                document.getElementById('contentArea').style.display = 'block';
+                renderLesson();
+            } else if (section === 'lessons') {
+                renderLesson();
+            } else if (section === 'practice') {
+                document.getElementById('lessonContent').style.display = 'none';
+                document.getElementById('practiceSection').style.display = 'block';
+                document.getElementById('quizSection').style.display = 'none';
+
+                const lang = lessons[currentLang];
+                document.getElementById('practicePrompt').textContent =
+                    `Practice writing ${lang.name} code below. Try recreating the examples from the lessons!`;
+            } else if (section === 'quiz') {
+                document.getElementById('lessonContent').style.display = 'none';
+                document.getElementById('practiceSection').style.display = 'none';
+                document.getElementById('quizSection').style.display = 'block';
+                renderQuiz();
+            }
+        }
+
+        function renderQuiz() {
+            const quizDiv = document.getElementById('quizSection');
+            const quizData = lessons[currentLang].quiz;
+            const langName = lessons[currentLang].name;
+
+            if (!quizData || quizData.length === 0) {
+                quizDiv.innerHTML = '<div class="lesson-card"><h2>Quiz coming soon!</h2></div>';
+                return;
+            }
+
+            let html = `<div class="quiz-section">
+                <h3>🧠 ${langName} Quiz — Test Your Knowledge!</h3>`;
+
+            quizData.forEach((q, qi) => {
+                html += `<div style="margin: 20px 0; padding: 15px; background: #1a1a2e; border-radius: 10px;">
+                    <p style="font-weight: bold; margin-bottom: 10px; color: #e0e0e0;">
+                        ${qi + 1}. ${q.question}
+                    </p>`;
+
+                q.options.forEach((opt, oi) => {
+                    html += `<div class="quiz-option" onclick="checkAnswer(this, ${qi}, ${oi})">${opt}</div>`;
+                });
+
+                html += `<div class="quiz-result" id="result-${qi}"></div></div>`;
+            });
+
+            html += '</div>';
+            quizDiv.innerHTML = html;
+        }
+
+        function checkAnswer(element, questionIndex, optionIndex) {
+            const quizData = lessons[currentLang].quiz;
+            const correct = quizData[questionIndex].correct;
+            const resultDiv = document.getElementById(`result-${questionIndex}`);
+
+            // Disable all options for this question
+            const parent = element.parentElement;
+            const options = parent.querySelectorAll('.quiz-option');
+            options.forEach((opt, i) => {
+                opt.style.pointerEvents = 'none';
+                if (i === correct) {
+                    opt.classList.add('correct');
+                }
+            });
+
+            if (optionIndex === correct) {
+                element.classList.add('correct');
+                resultDiv.textContent = '✅ Correct! Well done, Samuel!';
+                resultDiv.style.color = '#4caf50';
+            } else {
+                element.classList.add('wrong');
+                resultDiv.textContent = '❌ Not quite. The correct answer is highlighted in green.';
+                resultDiv.style.color = '#f44336';
+            }
+            resultDiv.style.display = 'block';
+        }
+
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling;
+            const text = codeBlock.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                button.textContent = '✅ Copied!';
+                setTimeout(() => { button.textContent = '📋 Copy'; }, 2000);
+            });
+        }
+
+        function runCode() {
+            const code = document.getElementById('codeEditor').value;
+            const output = document.getElementById('practiceOutput');
+
+            if (!code.trim()) {
+                output.textContent = '⚠️ Please write some code first!';
+                return;
+            }
+
+            if (currentLang === 'javascript' || currentLang === 'html') {
+                try {
+                    let result = [];
+                    const originalLog = console.log;
+                    console.log = function(...args) {
+                        result.push(args.join(' '));
+                    };
+                    eval(code);
+                    console.log = originalLog;
+                    output.textContent = result.length > 0 ? result.join('\n') : '✅ Code executed (no console output)';
+                } catch (error) {
+                    output.textContent = '❌ Error: ' + error.message;
+                    output.style.color = '#f44336';
+                    setTimeout(() => { output.style.color = '#4caf50'; }, 3000);
+                }
+            } else {
+                output.textContent = `ℹ️ ${lessons[currentLang].name} cannot run directly in the browser.\n\n` +
+                    `🔧 To run ${lessons[currentLang].name} code, use:\n` +
+                    `• Replit.com (online — free!)\n` +
+                    `• OnlineGDB.com (online compiler)\n` +
+                    `• VS Code + terminal (on your computer)\n\n` +
+                    `💡 JavaScript code CAN run here — switch to JavaScript to try it!`;
+            }
+        }
+
+        // =====================================================
+        //  INITIALIZE
+        // =====================================================
+        renderTopicNav();
+        renderLesson();
+    </script>
+
+</body>
+</html>
