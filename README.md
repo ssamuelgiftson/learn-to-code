@@ -3,6 +3,6 @@ Learn to code!
 
 
 
-Live website: https://learntocode-io.netlify.app 
+Live website: https://ssamuelgiftson.github.io/learn-to-code/#
 
-Visit Now!
+Test And Visit Now!
