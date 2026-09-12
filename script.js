@@ -1,5 +1,5 @@
 // =============================================
-//  STATE MANAGEMENT
+//  STATE MANAGEMENT — NOW WITH LOCALSTORAGE
 // =============================================
 var currentLang = 'python';
 var currentTopic = 0;
@@ -8,18 +8,54 @@ var completionState = {};
 var highlightTimer = null;
 var isContentEditable = false;
 
+// Load saved state from localStorage
+function loadState() {
+    try {
+        var saved = localStorage.getItem('codelab_state');
+        if (saved) {
+            var parsed = JSON.parse(saved);
+            completionState = parsed.completionState || {};
+            currentLang = parsed.currentLang || 'python';
+            currentTopic = parsed.currentTopic || 0;
+        }
+    } catch (e) {
+        completionState = {};
+    }
+}
+
+// Save state to localStorage
+function saveState() {
+    try {
+        localStorage.setItem('codelab_state', JSON.stringify({
+            completionState: completionState,
+            currentLang: currentLang,
+            currentTopic: currentTopic
+        }));
+    } catch (e) {
+        // localStorage might be full or blocked
+    }
+}
+
 function getState(lang, topic) {
     var k = lang + '_' + topic;
     if (!completionState[k]) {
         completionState[k] = {
             timerDone: false,
+            remainingTime: -1,
             conceptsChecked: false,
             quizPassed: false,
             completed: false
         };
     }
+    // Ensure remainingTime exists for older state objects
+    if (completionState[k].remainingTime === undefined) {
+        completionState[k].remainingTime = -1;
+    }
     return completionState[k];
 }
+
+// Load state on startup
+loadState();
 
 // =============================================
 //  LESSON DATA
@@ -232,29 +268,25 @@ var lessons = {
         icon: "⚡",
         topics: [
             {
-                title: "Introduction to JavaScript",
-                readTime: 45,
+                title: "Introduction to JavaScript", readTime: 45,
                 concepts: ["JavaScript runs in the browser", "console.log() prints to console", "Statements end with semicolons", "F12 opens browser console"],
                 gateQuiz: { question: "Where does console.log() show output?", options: ["On the webpage", "In browser dev console (F12)", "In a popup", "In a file"], correct: 1, explanation: "console.log() outputs to the developer console opened with F12." },
                 content: '<h2>⚡ Introduction to JavaScript</h2><p class="subtitle">The language of the web</p><p>JavaScript makes websites interactive!</p><div class="code-container"><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button><div class="code-block"><span class="comment">// Print to console</span>\n<span class="function">console</span>.<span class="function">log</span>(<span class="string">"Hello, World!"</span>);\n<span class="function">console</span>.<span class="function">log</span>(<span class="string">"I am Samuel"</span>);</div></div><div class="output-box">Hello, World!\nI am Samuel</div><div class="how-it-works"><code>console.log()</code> prints to browser console. Every statement ends with <code>;</code>.</div><div class="tip-box">Press F12, go to Console tab, type <code>console.log("Hi!");</code> and press Enter!</div>'
             },
             {
-                title: "Variables & Types",
-                readTime: 50,
+                title: "Variables & Types", readTime: 50,
                 concepts: ["let vs const vs var", "const cannot be reassigned", "typeof checks data types", "JS numbers include integers and decimals"],
                 gateQuiz: { question: "Which creates an unchangeable variable?", options: ["let", "var", "const", "static"], correct: 2, explanation: "const creates a constant." },
                 content: '<h2>📦 Variables</h2><p class="subtitle">Three ways to store data</p><div class="code-container"><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button><div class="code-block"><span class="keyword">let</span> age = <span class="number">13</span>;\nage = <span class="number">14</span>;  <span class="comment">// ✅ Works</span>\n\n<span class="keyword">const</span> name = <span class="string">"Samuel"</span>;\n<span class="comment">// name = "X"; ❌ ERROR!</span>\n\n<span class="function">console</span>.<span class="function">log</span>(<span class="keyword">typeof</span> age);   <span class="comment">// "number"</span>\n<span class="function">console</span>.<span class="function">log</span>(<span class="keyword">typeof</span> name);  <span class="comment">// "string"</span></div></div><div class="how-it-works"><code>let</code> for values that change. <code>const</code> for constants. Avoid <code>var</code>.</div>'
             },
             {
-                title: "Conditions & Loops",
-                readTime: 55,
+                title: "Conditions & Loops", readTime: 55,
                 concepts: ["if/else uses curly braces {}", "for(init; condition; update)", "=== checks value AND type", "for...of loops arrays"],
                 gateQuiz: { question: "What does === check?", options: ["Only value", "Only type", "Value AND type", "Assignment"], correct: 2, explanation: "=== checks both value and type." },
                 content: '<h2>🔀 Conditions & Loops</h2><p class="subtitle">Decisions and repetition</p><div class="code-container"><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button><div class="code-block"><span class="keyword">let</span> marks = <span class="number">85</span>;\n<span class="keyword">if</span> (marks >= <span class="number">90</span>) {\n    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"A+"</span>);\n} <span class="keyword">else if</span> (marks >= <span class="number">80</span>) {\n    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"A"</span>);\n} <span class="keyword">else</span> {\n    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Keep trying!"</span>);\n}\n\n<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i <= <span class="number">5</span>; i++) {\n    <span class="function">console</span>.<span class="function">log</span>(<span class="string">"Count:"</span>, i);\n}</div></div><div class="how-it-works">JS uses <code>{}</code> for code blocks. For loop: start, condition, increment.</div>'
             },
             {
-                title: "Functions",
-                readTime: 50,
+                title: "Functions", readTime: 50,
                 concepts: ["Three ways to create functions", "Arrow functions use =>", "return sends a value back", "Default parameters"],
                 gateQuiz: { question: "Which is a valid arrow function?", options: ["function(a)=>a+1", "(a)=>a+1", "arrow(a){a+1}", "=>(a)a+1"], correct: 1, explanation: "Arrow: (params) => expression." },
                 content: '<h2>🧩 Functions</h2><p class="subtitle">Three ways</p><div class="code-container"><button class="copy-btn" onclick="copyCode(this)">📋 Copy</button><div class="code-block"><span class="keyword">function</span> <span class="function">greet</span>(name) {\n    <span class="keyword">return</span> <span class="string">"Hello, "</span> + name;\n}\n\n<span class="keyword">const</span> <span class="function">add</span> = (a, b) => a + b;\n\n<span class="function">console</span>.<span class="function">log</span>(<span class="function">greet</span>(<span class="string">"Samuel"</span>));\n<span class="function">console</span>.<span class="function">log</span>(<span class="function">add</span>(<span class="number">10</span>, <span class="number">20</span>));</div></div><div class="output-box">Hello, Samuel\n30</div><div class="how-it-works">Arrow functions <code>=></code> are shorter.</div>'
@@ -307,7 +339,6 @@ function toggleTheme() {
     localStorage.setItem('theme', t.checked ? 'light' : 'dark');
 }
 
-// Load saved theme on page load
 (function () {
     if (localStorage.getItem('theme') === 'light') {
         document.documentElement.setAttribute('data-theme', 'light');
@@ -329,6 +360,9 @@ function showToast(msg, type) {
 //  LANGUAGE SWITCHING
 // =============================================
 function switchLanguage(lang, btn) {
+    // Save remaining time of current timer before switching
+    pauseCurrentTimer();
+
     currentLang = lang;
     currentTopic = 0;
     document.querySelectorAll('.lang-btn').forEach(function (b) { b.classList.remove('active'); });
@@ -337,6 +371,7 @@ function switchLanguage(lang, btn) {
     renderTopicNav();
     renderLesson();
     updateProgress();
+    saveState();
     showSection('lessons', document.querySelector('nav a'));
 }
 
@@ -361,9 +396,13 @@ function selectTopic(i) {
         showToast('🔒 Complete previous topic first!', 'error');
         return;
     }
+    // Save timer before switching topics
+    pauseCurrentTimer();
+
     currentTopic = i;
     renderTopicNav();
     renderLesson();
+    saveState();
 }
 
 // =============================================
@@ -379,14 +418,33 @@ function updateProgress() {
 }
 
 // =============================================
-//  READING TIMER
+//  READING TIMER — FIXED: SAVES & RESUMES
 // =============================================
-function startReadingTimer(secs) {
+
+// Pause the currently running timer and save remaining time
+function pauseCurrentTimer() {
+    var key = currentLang + '_' + currentTopic;
+    if (activeTimers[key]) {
+        clearInterval(activeTimers[key].intervalId);
+
+        // Save remaining time to state
+        var state = getState(currentLang, currentTopic);
+        if (!state.timerDone) {
+            state.remainingTime = activeTimers[key].remaining;
+            saveState();
+        }
+
+        delete activeTimers[key];
+    }
+}
+
+function startReadingTimer(totalSeconds) {
     var state = getState(currentLang, currentTopic);
     var cd = document.getElementById('timerCountdown');
     var tx = document.getElementById('timerText');
     if (!cd || !tx) return;
 
+    // Already done — show completed
     if (state.timerDone) {
         cd.textContent = '✅ Done!';
         cd.classList.add('timer-done');
@@ -394,30 +452,63 @@ function startReadingTimer(secs) {
         return;
     }
 
-    var remaining = secs;
-    var key = currentLang + '_' + currentTopic;
-    if (activeTimers[key]) clearInterval(activeTimers[key]);
+    // Determine starting time:
+    // If remainingTime was saved before, resume from it
+    // Otherwise start from the full readTime
+    var remaining;
+    if (state.remainingTime >= 0) {
+        remaining = state.remainingTime;
+    } else {
+        remaining = totalSeconds;
+        state.remainingTime = totalSeconds;
+    }
 
-    function upd() {
+    var key = currentLang + '_' + currentTopic;
+
+    // Clear any existing timer for this key
+    if (activeTimers[key]) {
+        clearInterval(activeTimers[key].intervalId);
+        delete activeTimers[key];
+    }
+
+    function updateDisplay() {
         var m = Math.floor(remaining / 60);
         var s = remaining % 60;
-        cd.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+        if (cd) cd.textContent = m + ':' + (s < 10 ? '0' : '') + s;
     }
-    upd();
+    updateDisplay();
 
-    activeTimers[key] = setInterval(function () {
+    var intervalId = setInterval(function () {
         remaining--;
-        upd();
+
+        // Update state's remaining time
+        state.remainingTime = remaining;
+
+        updateDisplay();
+
+        // Save to localStorage every 5 seconds to avoid too many writes
+        if (remaining % 5 === 0) {
+            saveState();
+        }
+
         if (remaining <= 0) {
-            clearInterval(activeTimers[key]);
+            clearInterval(intervalId);
+            delete activeTimers[key];
             state.timerDone = true;
-            cd.textContent = '✅ Done!';
-            cd.classList.add('timer-done');
-            tx.textContent = '✅ Reading time complete!';
+            state.remainingTime = 0;
+            saveState();
+            if (cd) { cd.textContent = '✅ Done!'; cd.classList.add('timer-done'); }
+            if (tx) tx.textContent = '✅ Reading time complete!';
             checkCompletion();
             showToast('⏱️ Reading done! Check concepts below.', 'success');
         }
     }, 1000);
+
+    // Store reference so we can pause later
+    activeTimers[key] = {
+        intervalId: intervalId,
+        remaining: remaining
+    };
 }
 
 // =============================================
@@ -432,6 +523,7 @@ function onConceptCheck() {
         else { item.classList.remove('checked'); all = false; }
     });
     getState(currentLang, currentTopic).conceptsChecked = all;
+    saveState();
     if (all) showToast('✅ All concepts checked! Pass the quiz.', 'success');
     checkCompletion();
 }
@@ -456,6 +548,7 @@ function checkGateAnswer(btn, idx) {
         res.innerHTML = '✅ Correct! ' + topic.gateQuiz.explanation;
         res.className = 'gate-result success';
         state.quizPassed = true;
+        saveState();
         checkCompletion();
     } else {
         btn.classList.add('wrong');
@@ -476,6 +569,7 @@ function checkCompletion() {
     var state = getState(currentLang, currentTopic);
     if (state.timerDone && state.conceptsChecked && state.quizPassed && !state.completed) {
         state.completed = true;
+        saveState();
         var btn = document.getElementById('unlockBtn');
         if (btn) btn.style.display = 'inline-block';
         showToast('🎉 Topic completed!', 'success');
@@ -486,6 +580,7 @@ function checkCompletion() {
 
 function unlockNext() {
     if (currentTopic < lessons[currentLang].topics.length - 1) {
+        pauseCurrentTimer();
         selectTopic(currentTopic + 1);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
@@ -526,6 +621,8 @@ function renderLesson() {
     document.getElementById('lessonContent').style.display = 'block';
     document.getElementById('practiceSection').style.display = 'none';
     document.getElementById('quizSection').style.display = 'none';
+
+    // Start or resume the timer
     startReadingTimer(topic.readTime);
 }
 
@@ -539,11 +636,14 @@ function showSection(section, navLink) {
     if (section === 'lessons') {
         renderLesson();
     } else if (section === 'practice') {
+        // Pause timer but DON'T reset — it will resume when coming back
+        pauseCurrentTimer();
         document.getElementById('lessonContent').style.display = 'none';
         document.getElementById('quizSection').style.display = 'none';
         renderPractice();
         document.getElementById('practiceSection').style.display = 'block';
     } else if (section === 'quiz') {
+        pauseCurrentTimer();
         document.getElementById('lessonContent').style.display = 'none';
         document.getElementById('practiceSection').style.display = 'none';
         renderQuiz();
@@ -596,7 +696,6 @@ function renderPractice() {
         '<h3 style="margin-top:20px;color:var(--accent-gold)">🎯 Challenges</h3>' + challenges +
         '</div>';
 
-    // Attach highlighting event
     var input = document.getElementById('codeInput');
     if (input) {
         input.addEventListener('input', function () {
@@ -613,26 +712,20 @@ function renderPractice() {
 function convertToHighlighted() {
     var textarea = document.getElementById('codeInput');
     if (!textarea || isContentEditable) return;
-
     var code = textarea.value;
     if (!code.trim()) return;
-
     var cursorPos = textarea.selectionStart;
 
-    // Create contenteditable div
     var div = document.createElement('div');
     div.id = 'codeInput';
     div.contentEditable = 'true';
     div.spellcheck = false;
     div.style.cssText = 'display:block;width:100%;min-height:220px;max-height:500px;background:var(--editor-bg);border:none;padding:16px;font-family:"Courier New",Consolas,monospace;font-size:14px;line-height:1.6;overflow-y:auto;outline:none;white-space:pre-wrap;word-wrap:break-word;caret-color:#ffd700;color:#e0e0e0;tab-size:4;resize:vertical;';
-
     div.innerHTML = colorize(code, currentLang);
     textarea.parentNode.replaceChild(div, textarea);
     isContentEditable = true;
-
     restoreCursor(div, cursorPos);
 
-    // Live highlighting on input
     div.addEventListener('input', function () {
         if (highlightTimer) clearTimeout(highlightTimer);
         var info = document.getElementById('charInfo');
@@ -645,19 +738,14 @@ function convertToHighlighted() {
         }, 300);
     });
 
-    // Clean paste
     div.addEventListener('paste', function (e) {
         e.preventDefault();
         var text = (e.clipboardData || window.clipboardData).getData('text/plain');
         document.execCommand('insertText', false, text);
     });
 
-    // Tab key
     div.addEventListener('keydown', function (e) {
-        if (e.key === 'Tab') {
-            e.preventDefault();
-            document.execCommand('insertText', false, '    ');
-        }
+        if (e.key === 'Tab') { e.preventDefault(); document.execCommand('insertText', false, '    '); }
     });
 }
 
@@ -685,134 +773,89 @@ function saveCursor(el) {
 function restoreCursor(el, pos) {
     var sel = window.getSelection();
     var range = document.createRange();
-    var count = 0;
-    var found = false;
-
+    var count = 0, found = false;
     function walk(node) {
         if (found) return;
         if (node.nodeType === 3) {
             var len = node.textContent.length;
-            if (count + len >= pos) {
-                range.setStart(node, pos - count);
-                range.collapse(true);
-                found = true;
-            }
+            if (count + len >= pos) { range.setStart(node, pos - count); range.collapse(true); found = true; }
             count += len;
-        } else {
-            for (var i = 0; i < node.childNodes.length; i++) {
-                walk(node.childNodes[i]);
-                if (found) return;
-            }
-        }
+        } else { for (var i = 0; i < node.childNodes.length; i++) { walk(node.childNodes[i]); if (found) return; } }
     }
-
     walk(el);
     if (!found) { range.selectNodeContents(el); range.collapse(false); }
-    sel.removeAllRanges();
-    sel.addRange(range);
-    el.focus();
+    sel.removeAllRanges(); sel.addRange(range); el.focus();
 }
 
 // =============================================
-//  COLORIZE — TOKEN-BASED HIGHLIGHTING
+//  COLORIZE
 // =============================================
 function colorize(code, lang) {
     var escaped = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    var lines = escaped.split('\n');
-    return lines.map(function (line) { return colorizeLine(line, lang); }).join('\n');
+    return escaped.split('\n').map(function (line) { return colorizeLine(line, lang); }).join('\n');
 }
 
 function colorizeLine(line, lang) {
-    var commentMarker = (lang === 'python') ? '#' : '//';
+    var marker = (lang === 'python') ? '#' : '//';
     if (lang === 'html') return colorizeHTMLLine(line);
-
-    var idx = findComment(line, commentMarker);
+    var idx = findComment(line, marker);
     if (idx >= 0) {
-        var before = line.substring(0, idx);
-        var comment = line.substring(idx);
-        return tokenize(before, lang) + '<span style="color:#546e7a;font-style:italic">' + comment + '</span>';
+        return tokenize(line.substring(0, idx), lang) + '<span style="color:#546e7a;font-style:italic">' + line.substring(idx) + '</span>';
     }
     return tokenize(line, lang);
 }
 
 function findComment(line, marker) {
-    var inStr = false, ch2 = '';
+    var inStr = false, ch = '';
     for (var i = 0; i < line.length; i++) {
         var c = line[i];
-        if (!inStr && (c === '"' || c === "'")) { inStr = true; ch2 = c; }
-        else if (inStr && c === ch2) inStr = false;
+        if (!inStr && (c === '"' || c === "'")) { inStr = true; ch = c; }
+        else if (inStr && c === ch) inStr = false;
         else if (!inStr && line.substring(i, i + marker.length) === marker) return i;
     }
     return -1;
 }
 
 function tokenize(text, lang) {
-    var tokens = [];
-    var i = 0;
+    var tokens = [], i = 0;
     while (i < text.length) {
         var c = text[i];
-
-        // Strings
         if (c === '"' || c === "'" || c === '`') {
-            var start = i; var q = c; i++;
+            var s = i, q = c; i++;
             while (i < text.length && text[i] !== q) { if (text[i] === '\\') i++; i++; }
             if (i < text.length) i++;
-            tokens.push({ t: 'string', v: text.substring(start, i) }); continue;
+            tokens.push({ t: 'string', v: text.substring(s, i) }); continue;
         }
-
-        // Numbers
         if (c >= '0' && c <= '9') {
             var ns = i;
             while (i < text.length && ((text[i] >= '0' && text[i] <= '9') || text[i] === '.')) i++;
-            if (i < text.length && isW(text[i])) {
-                while (i < text.length && isW(text[i])) i++;
-                tokens.push({ t: 'plain', v: text.substring(ns, i) });
-            } else {
-                tokens.push({ t: 'number', v: text.substring(ns, i) });
-            }
+            if (i < text.length && isW(text[i])) { while (i < text.length && isW(text[i])) i++; tokens.push({ t: 'plain', v: text.substring(ns, i) }); }
+            else tokens.push({ t: 'number', v: text.substring(ns, i) });
             continue;
         }
-
-        // Words
         if (isW(c)) {
-            var ws = i;
-            while (i < text.length && isW(text[i])) i++;
-            var word = text.substring(ws, i);
-            tokens.push({ t: wordType(word, lang), v: word }); continue;
+            var ws = i; while (i < text.length && isW(text[i])) i++;
+            tokens.push({ t: wordType(text.substring(ws, i), lang), v: text.substring(ws, i) }); continue;
         }
-
-        // Brackets
         if ('()[]{}' .indexOf(c) >= 0) { tokens.push({ t: 'bracket', v: c }); i++; continue; }
-
-        // C preprocessor
         if (c === '#' && lang === 'c') {
-            var ps = i; i++;
-            while (i < text.length && isW(text[i])) i++;
+            var ps = i; i++; while (i < text.length && isW(text[i])) i++;
             tokens.push({ t: 'keyword', v: text.substring(ps, i) }); continue;
         }
-
-        // Operators
         if ('=+*/%!<>&|^~?:;,.-'.indexOf(c) >= 0) {
-            if (c === '=' && text.substring(i, i + 5) === '=&gt;') {
-                tokens.push({ t: 'operator', v: '=&gt;' }); i += 5; continue;
-            }
+            if (c === '=' && text.substring(i, i + 5) === '=&gt;') { tokens.push({ t: 'operator', v: '=&gt;' }); i += 5; continue; }
             tokens.push({ t: 'operator', v: c }); i++; continue;
         }
-
         tokens.push({ t: 'plain', v: c }); i++;
     }
-
     var colors = { keyword: '#c792ea', string: '#c3e88d', function: '#82aaff', number: '#f78c6c', bracket: '#ffd700', operator: '#89ddff', type: '#ffcb6b' };
     return tokens.map(function (tk) {
         var col = colors[tk.t];
-        if (col) return '<span style="color:' + col + (tk.t === 'keyword' ? ';font-weight:bold' : '') + '">' + tk.v + '</span>';
-        return tk.v;
+        return col ? '<span style="color:' + col + (tk.t === 'keyword' ? ';font-weight:bold' : '') + '">' + tk.v + '</span>' : tk.v;
     }).join('');
 }
 
-function isW(c) {
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c === '_';
-}
+function isW(c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c === '_'; }
 
 function wordType(word, lang) {
     var kw = {
@@ -828,7 +871,6 @@ function wordType(word, lang) {
         c: ['printf', 'scanf', 'main', 'malloc', 'free', 'strlen', 'strcpy']
     };
     var tp = { java: ['int', 'double', 'float', 'char', 'boolean', 'String', 'long', 'short', 'byte'] };
-
     if (tp[lang] && tp[lang].indexOf(word) >= 0) return 'type';
     if (kw[lang] && kw[lang].indexOf(word) >= 0) return 'keyword';
     if (fn[lang] && fn[lang].indexOf(word) >= 0) return 'function';
@@ -836,9 +878,7 @@ function wordType(word, lang) {
 }
 
 function colorizeHTMLLine(line) {
-    line = line.replace(/(&lt;\/?)([\w]+)/g, function (m, p1, p2) {
-        return p1 + '<span style="color:#f07178">' + p2 + '</span>';
-    });
+    line = line.replace(/(&lt;\/?)([\w]+)/g, function (m, p1, p2) { return p1 + '<span style="color:#f07178">' + p2 + '</span>'; });
     line = line.replace(/([\w-]+)(=)/g, '<span style="color:#ffcb6b">$1</span><span style="color:#89ddff">$2</span>');
     line = line.replace(/("(?:[^"\\]|\\.)*")/g, '<span style="color:#c3e88d">$1</span>');
     return line;
@@ -863,26 +903,17 @@ function getEditorCode() {
 function runCode() {
     var code = getEditorCode();
     var output = document.getElementById('runOutput');
-    if (!code.trim()) {
-        output.textContent = '⚠️ Write some code first!';
-        output.className = 'run-output err';
-        return;
-    }
+    if (!code.trim()) { output.textContent = '⚠️ Write some code first!'; output.className = 'run-output err'; return; }
 
     if (currentLang === 'javascript') {
         try {
             var results = [];
             var oL = console.log, oW = console.warn, oE = console.error;
-            console.log = function () {
-                results.push(Array.prototype.slice.call(arguments).map(function (a) {
-                    return typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a);
-                }).join(' '));
-            };
+            console.log = function () { results.push(Array.prototype.slice.call(arguments).map(function (a) { return typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a); }).join(' ')); };
             console.warn = function () { results.push('⚠️ ' + Array.prototype.slice.call(arguments).join(' ')); };
             console.error = function () { results.push('❌ ' + Array.prototype.slice.call(arguments).join(' ')); };
             var ret = eval(code);
             console.log = oL; console.warn = oW; console.error = oE;
-
             if (results.length > 0) output.textContent = results.join('\n');
             else if (ret !== undefined) output.textContent = String(ret);
             else output.textContent = '✅ Executed (no output). Use console.log()!';
@@ -895,20 +926,14 @@ function runCode() {
         }
     } else if (currentLang === 'html') {
         try {
-            var frame = document.createElement('iframe');
-            frame.style.display = 'none';
-            document.body.appendChild(frame);
-            frame.contentDocument.open();
-            frame.contentDocument.write(code);
-            frame.contentDocument.close();
+            var frame = document.createElement('iframe'); frame.style.display = 'none';
+            document.body.appendChild(frame); frame.contentDocument.open();
+            frame.contentDocument.write(code); frame.contentDocument.close();
             var txt = frame.contentDocument.body.innerText || '';
             document.body.removeChild(frame);
             output.textContent = txt ? '📄 Rendered:\n\n' + txt : '✅ HTML rendered';
             output.className = 'run-output';
-        } catch (err) {
-            output.textContent = '❌ Error: ' + err.message;
-            output.className = 'run-output err';
-        }
+        } catch (err) { output.textContent = '❌ Error: ' + err.message; output.className = 'run-output err'; }
     } else {
         output.textContent = simulateOutput(code, currentLang);
         output.className = 'run-output';
@@ -916,17 +941,14 @@ function runCode() {
 }
 
 function simulateOutput(code, lang) {
-    var outputs = [];
-    var match;
-
+    var outputs = [], match;
     if (lang === 'python') {
         var re = /print\s*\(([\s\S]*?)\)/g;
         while ((match = re.exec(code)) !== null) {
             var parts = splitPrintArgs(match[1].trim());
             var resolved = parts.map(function (p) {
                 p = p.trim();
-                if ((p[0] === '"' && p[p.length - 1] === '"') || (p[0] === "'" && p[p.length - 1] === "'"))
-                    return p.slice(1, -1);
+                if ((p[0] === '"' && p[p.length - 1] === '"') || (p[0] === "'" && p[p.length - 1] === "'")) return p.slice(1, -1);
                 try { var v = eval(p); if (v !== undefined) return String(v); } catch (e) { }
                 return p;
             });
@@ -967,10 +989,7 @@ function splitPrintArgs(str) {
 function renderQuiz() {
     var qd = lessons[currentLang].quiz;
     var ln = lessons[currentLang].name;
-    if (!qd || !qd.length) {
-        document.getElementById('quizSection').innerHTML = '<div class="lesson-card"><h2>Quiz coming soon!</h2></div>';
-        return;
-    }
+    if (!qd || !qd.length) { document.getElementById('quizSection').innerHTML = '<div class="lesson-card"><h2>Quiz coming soon!</h2></div>'; return; }
 
     var html = '<div class="quiz-section"><h3>🧠 ' + ln + ' Final Quiz</h3>';
     qd.forEach(function (q, qi) {
@@ -982,8 +1001,7 @@ function renderQuiz() {
     });
     html += '<div class="score-box" id="scoreBox"><h2 id="scoreText"></h2><p id="scoreMsg" style="margin-top:8px;color:var(--text-secondary)"></p></div></div>';
     document.getElementById('quizSection').innerHTML = html;
-    window._qs = 0;
-    window._qa = 0;
+    window._qs = 0; window._qa = 0;
 }
 
 function checkQuiz(el, qi, oi) {
@@ -991,25 +1009,10 @@ function checkQuiz(el, qi, oi) {
     var correct = qd[qi].correct;
     var res = document.getElementById('qr-' + qi);
     var opts = el.parentElement.querySelectorAll('.quiz-opt');
-
-    opts.forEach(function (o, i) {
-        o.style.pointerEvents = 'none';
-        if (i === correct) o.classList.add('correct');
-    });
-
-    if (oi === correct) {
-        el.classList.add('correct');
-        res.textContent = '✅ Correct!';
-        res.style.color = 'var(--accent-green)';
-        window._qs++;
-    } else {
-        el.classList.add('wrong');
-        res.textContent = '❌ Wrong — correct is green';
-        res.style.color = 'var(--accent-red)';
-    }
-    res.style.display = 'block';
-    window._qa++;
-
+    opts.forEach(function (o, i) { o.style.pointerEvents = 'none'; if (i === correct) o.classList.add('correct'); });
+    if (oi === correct) { el.classList.add('correct'); res.textContent = '✅ Correct!'; res.style.color = 'var(--accent-green)'; window._qs++; }
+    else { el.classList.add('wrong'); res.textContent = '❌ Wrong — correct is green'; res.style.color = 'var(--accent-red)'; }
+    res.style.display = 'block'; window._qa++;
     if (window._qa === qd.length) {
         var pct = Math.round((window._qs / qd.length) * 100);
         document.getElementById('scoreText').textContent = 'Score: ' + window._qs + '/' + qd.length + ' (' + pct + '%)';
@@ -1030,8 +1033,29 @@ function copyCode(btn) {
 }
 
 // =============================================
-//  INITIALIZE
+//  SAVE STATE BEFORE USER LEAVES PAGE
 // =============================================
-renderTopicNav();
-renderLesson();
-updateProgress();
+window.addEventListener('beforeunload', function () {
+    pauseCurrentTimer();
+    saveState();
+});
+
+// =============================================
+//  INITIALIZE — RESTORE SAVED STATE
+// =============================================
+(function init() {
+    // Restore language button
+    document.querySelectorAll('.lang-btn').forEach(function (btn) {
+        btn.classList.remove('active');
+        if (btn.textContent.toLowerCase().indexOf(currentLang) >= 0 ||
+            (currentLang === 'c' && btn.textContent.indexOf('⚙️') >= 0) ||
+            (currentLang === 'html' && btn.textContent.indexOf('🌐') >= 0)) {
+            btn.classList.add('active');
+        }
+    });
+
+    document.getElementById('progressLang').textContent = lessons[currentLang].name;
+    renderTopicNav();
+    renderLesson();
+    updateProgress();
+})();
