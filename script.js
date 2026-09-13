@@ -397,3 +397,567 @@ function showSection(section, navLink) {
     else if (section === 'practice') { pauseCurrentTimer(); document.getElementById('lessonContent').style.display = 'none'; document.getElementById('quizSection').style.display = 'none'; renderPractice(); document.getElementById('practiceSection').style.display = 'block'; }
     else if (section === 'quiz') { pauseCurrentTimer(); document.getElementById('lessonContent').style.display = 'none'; document.getElementById('practiceSection').style.display = 'none'; renderQuiz(); document.getElementById('quizSection').style.display = 'block'; }
 }
+// =============================================
+//  PART 2: PRACTICE, RUN CODE, COLORIZE, QUIZ, INIT
+// =============================================
+
+// === PRACTICE SECTION ===
+function getPlaceholder(lang) {
+    var p = {
+        python: 'print("Hello, World!")',
+        javascript: 'console.log("Hello!");',
+        java: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello!");\n    }\n}',
+        c: '#include <stdio.h>\n\nint main() {\n    printf("Hello!\\n");\n    return 0;\n}',
+        html: '<h1>Hello!</h1>\n<p>Welcome</p>',
+        typescript: 'console.log("Hello!");',
+        lua: 'print("Hello, World!")',
+        csharp: 'using System;\nclass Program {\n    static void Main() {\n        Console.WriteLine("Hello!");\n    }\n}',
+        gdscript: 'func _ready():\n    print("Hello!")',
+        css: '.box {\n    color: red;\n    padding: 20px;\n}'
+    };
+    return p[lang] || 'Type your code here...';
+}
+
+function getChallenges(lang) {
+    var challenges = {
+        python: [
+            { diff: 'e', title: 'Hello World', desc: 'Print "Hello, World!"', code: 'print("Hello, World!")' },
+            { diff: 'e', title: 'Math', desc: 'Print 15 + 27', code: 'print(15 + 27)' },
+            { diff: 'm', title: 'Variables', desc: 'Create name and age, print them', code: 'name = "Samuel"\nage = 13\nprint("Name:", name)\nprint("Age:", age)' },
+            { diff: 'h', title: 'Loop', desc: 'Print 1 to 5 with a for loop', code: 'for i in range(1, 6):\n    print(i)' }
+        ],
+        javascript: [
+            { diff: 'e', title: 'Hello World', desc: 'Log "Hello, World!"', code: 'console.log("Hello, World!");' },
+            { diff: 'e', title: 'Math', desc: 'Log 10 + 20', code: 'console.log(10 + 20);' },
+            { diff: 'm', title: 'Variables', desc: 'Create and log a variable', code: 'let name = "Samuel";\nconsole.log("Hello,", name);' },
+            { diff: 'h', title: 'Loop', desc: 'Print 1 to 5', code: 'for (let i = 1; i <= 5; i++) {\n    console.log(i);\n}' }
+        ],
+        java: [
+            { diff: 'e', title: 'Hello World', desc: 'Print Hello World', code: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}' }
+        ],
+        c: [
+            { diff: 'e', title: 'Hello World', desc: 'Print Hello World', code: '#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}' }
+        ],
+        typescript: [
+            { diff: 'e', title: 'Hello World', desc: 'Log with types', code: 'let name: string = "Samuel";\nconsole.log("Hello,", name);' }
+        ],
+        lua: [
+            { diff: 'e', title: 'Hello World', desc: 'Print Hello World', code: 'print("Hello, World!")' },
+            { diff: 'm', title: 'Variables', desc: 'Create and print variables', code: 'local name = "Samuel"\nlocal age = 13\nprint("Name: " .. name)\nprint("Age: " .. age)' }
+        ],
+        csharp: [
+            { diff: 'e', title: 'Hello World', desc: 'Print Hello World', code: 'using System;\nclass Program {\n    static void Main() {\n        Console.WriteLine("Hello, World!");\n    }\n}' }
+        ],
+        gdscript: [
+            { diff: 'e', title: 'Hello World', desc: 'Print Hello World', code: 'extends Node\n\nfunc _ready():\n    print("Hello, World!")' }
+        ],
+        html: [
+            { diff: 'e', title: 'Basic Page', desc: 'Create heading and paragraph', code: '<!DOCTYPE html>\n<html>\n<body>\n    <h1>Hello!</h1>\n    <p>Welcome to my site</p>\n</body>\n</html>' }
+        ],
+        css: [
+            { diff: 'e', title: 'Style a Box', desc: 'Create a colored box', code: '.box {\n    background: #667eea;\n    color: white;\n    padding: 20px;\n    border-radius: 10px;\n}' }
+        ]
+    };
+
+    var langChallenges = challenges[lang] || [];
+    if (langChallenges.length === 0) {
+        return '<div class="challenge-card"><p>No challenges yet. Try writing your own code!</p></div>';
+    }
+
+    var html = '';
+    for (var i = 0; i < langChallenges.length; i++) {
+        var ch = langChallenges[i];
+        var diffClass = ch.diff === 'e' ? 'diff-e' : ch.diff === 'm' ? 'diff-m' : 'diff-h';
+        var diffLabel = ch.diff === 'e' ? 'Easy' : ch.diff === 'm' ? 'Medium' : 'Hard';
+        var escapedCode = ch.code.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
+
+        html += '<div class="challenge-card">';
+        html += '<span class="diff ' + diffClass + '">' + diffLabel + '</span>';
+        html += '<h4>🎯 ' + ch.title + '</h4>';
+        html += '<p>' + ch.desc + '</p>';
+        html += '<button class="try-btn" onclick="loadChallenge(&quot;' + escapedCode + '&quot;)">📝 Load Template</button>';
+        html += '</div>';
+    }
+    return html;
+}
+
+function renderPractice() {
+    var lang = lessons[currentLang];
+    previewVisible = false;
+    var challengeHTML = getChallenges(currentLang);
+    var placeholder = getPlaceholder(currentLang).replace(/"/g, '&quot;').replace(/\n/g, '&#10;');
+
+    var html = '<div class="practice-section">';
+    html += '<h3>✍️ Practice ' + lang.name + '</h3>';
+    html += '<p style="color:var(--text-secondary);margin-bottom:14px;font-size:13px">';
+
+    if (currentLang === 'javascript' || currentLang === 'typescript') {
+        html += 'Type code and click <strong>▶ Run</strong> for <strong>real execution</strong>! Click <strong>👁️ Preview</strong> for syntax colors.';
+    } else if (currentLang === 'html' || currentLang === 'css') {
+        html += 'Type HTML/CSS and click <strong>▶ Run</strong> to render it! Click <strong>👁️ Preview</strong> for syntax colors.';
+    } else {
+        html += 'Type code and click <strong>▶ Run</strong> for simulated output. Click <strong>👁️ Preview</strong> for syntax colors. For real execution, use <a href="https://replit.com" target="_blank" style="color:var(--accent-primary)">replit.com</a>';
+    }
+    html += '</p>';
+
+    // Editor
+    html += '<div class="editor-box">';
+    html += '<div class="editor-top">';
+    html += '<div class="dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>';
+    html += '<span class="editor-label">' + lang.icon + ' ' + lang.name + '</span>';
+    html += '</div>';
+
+    html += '<div class="editor-main" style="position:relative">';
+    html += '<div class="line-numbers" id="lineNums">1</div>';
+    html += '<textarea id="codeInput" spellcheck="false" placeholder="' + placeholder + '" oninput="onCodeInput()" onscroll="syncLineNumbers()"></textarea>';
+    html += '</div>';
+
+    html += '<div class="preview-toggle-bar">';
+    html += '<span id="charInfo">0 chars | 1 line</span>';
+    html += '<button class="preview-btn" id="previewBtn" onclick="togglePreview()">👁️ Preview</button>';
+    html += '</div>';
+
+    html += '<div class="code-preview" id="codePreview"></div>';
+
+    html += '<div class="editor-bottom">';
+    if (currentLang === 'javascript' || currentLang === 'typescript') {
+        html += '<span style="color:#4caf50;font-size:11px">✅ Real execution in browser</span>';
+    } else if (currentLang === 'html' || currentLang === 'css') {
+        html += '<span style="color:#4caf50;font-size:11px">✅ Live rendering</span>';
+    } else {
+        html += '<span style="color:#888;font-size:11px">⚡ Simulated output</span>';
+    }
+    html += '<div class="btn-row">';
+    html += '<button class="clr-btn" onclick="clearCode()">🗑️ Clear</button>';
+    html += '<button class="run-btn" onclick="runCode()">▶ Run Code</button>';
+    html += '</div></div></div>';
+
+    // Output
+    html += '<div class="output-wrapper">';
+    html += '<div class="output-tab-bar">';
+    html += '<div class="output-tab active">📟 Output</div>';
+    html += '<div style="flex:1"></div>';
+    html += '<span class="output-status waiting" id="outputStatus">⏳ Waiting</span>';
+    html += '</div>';
+    html += '<div class="run-output" id="runOutput"><span class="output-empty">Run your code to see output here...</span></div>';
+    html += '<div class="execution-info" id="execInfo"><span>Ready</span><span></span></div>';
+    html += '</div>';
+
+    // Challenges
+    html += '<div class="challenge-header"><h3>🎯 Challenges</h3></div>';
+    html += challengeHTML;
+    html += '</div>';
+
+    document.getElementById('practiceSection').innerHTML = html;
+}
+
+function loadChallenge(code) {
+    var input = document.getElementById('codeInput');
+    if (input) {
+        var unescaped = code.replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+        input.value = unescaped;
+        onCodeInput();
+        input.focus();
+        showToast('📝 Template loaded! Click ▶ Run', 'info');
+    }
+}
+
+function onCodeInput() {
+    var input = document.getElementById('codeInput');
+    if (!input) return;
+    var code = input.value;
+    var lines = code.split('\n').length;
+    var info = document.getElementById('charInfo');
+    if (info) info.textContent = code.length + ' chars | ' + lines + ' line' + (lines !== 1 ? 's' : '');
+    updateLineNumbers(lines);
+    if (previewVisible) updatePreview();
+}
+
+function updateLineNumbers(count) {
+    var el = document.getElementById('lineNums');
+    if (!el) return;
+    var nums = [];
+    for (var i = 1; i <= count; i++) nums.push(i);
+    el.textContent = nums.join('\n');
+}
+
+function syncLineNumbers() {
+    var input = document.getElementById('codeInput');
+    var nums = document.getElementById('lineNums');
+    if (input && nums) nums.style.transform = 'translateY(-' + input.scrollTop + 'px)';
+}
+
+document.addEventListener('keydown', function (e) {
+    if (e.target && e.target.id === 'codeInput' && e.key === 'Tab') {
+        e.preventDefault();
+        var inp = e.target, s = inp.selectionStart, en = inp.selectionEnd;
+        inp.value = inp.value.substring(0, s) + '    ' + inp.value.substring(en);
+        inp.selectionStart = inp.selectionEnd = s + 4;
+        onCodeInput();
+    }
+});
+
+function togglePreview() {
+    previewVisible = !previewVisible;
+    var p = document.getElementById('codePreview'), b = document.getElementById('previewBtn');
+    if (!p || !b) return;
+    if (previewVisible) { p.classList.add('visible'); b.classList.add('active'); b.textContent = '👁️ Hide'; updatePreview(); }
+    else { p.classList.remove('visible'); b.classList.remove('active'); b.textContent = '👁️ Preview'; }
+}
+
+function updatePreview() {
+    var input = document.getElementById('codeInput'), preview = document.getElementById('codePreview');
+    if (!input || !preview) return;
+    if (!input.value.trim()) { preview.innerHTML = '<span class="output-empty">Type code to see preview...</span>'; return; }
+    preview.innerHTML = colorize(input.value, currentLang);
+}
+
+// === COLORIZE FOR PREVIEW ===
+function colorize(code, lang) {
+    var e = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return e.split('\n').map(function (l) { return colorizeLine(l, lang); }).join('\n');
+}
+
+function colorizeLine(line, lang) {
+    if (lang === 'html' || lang === 'css') return line;
+    var marker = (lang === 'python' || lang === 'gdscript') ? '#' : '//';
+    if (lang === 'lua') {
+        var dIdx = line.indexOf('--');
+        if (dIdx >= 0) return tokenize(line.substring(0, dIdx), lang) + '<span class="hl-comment">' + line.substring(dIdx) + '</span>';
+        return tokenize(line, lang);
+    }
+    var idx = findComment(line, marker);
+    if (idx >= 0) return tokenize(line.substring(0, idx), lang) + '<span class="hl-comment">' + line.substring(idx) + '</span>';
+    return tokenize(line, lang);
+}
+
+function findComment(line, marker) {
+    var inStr = false, ch = '';
+    for (var i = 0; i < line.length; i++) {
+        var c = line[i];
+        if (!inStr && (c === '"' || c === "'")) { inStr = true; ch = c; }
+        else if (inStr && c === ch) inStr = false;
+        else if (!inStr && line.substring(i, i + marker.length) === marker) return i;
+    }
+    return -1;
+}
+
+function tokenize(text, lang) {
+    var tokens = [], i = 0;
+    while (i < text.length) {
+        var c = text[i];
+        if (c === '"' || c === "'" || c === '`') {
+            var s = i, q = c; i++;
+            while (i < text.length && text[i] !== q) { if (text[i] === '\\') i++; i++; }
+            if (i < text.length) i++;
+            tokens.push({ t: 'string', v: text.substring(s, i) }); continue;
+        }
+        if (c >= '0' && c <= '9') {
+            var ns = i;
+            while (i < text.length && ((text[i] >= '0' && text[i] <= '9') || text[i] === '.')) i++;
+            if (i < text.length && isW(text[i])) { while (i < text.length && isW(text[i])) i++; tokens.push({ t: 'plain', v: text.substring(ns, i) }); }
+            else tokens.push({ t: 'number', v: text.substring(ns, i) });
+            continue;
+        }
+        if (isW(c)) { var ws = i; while (i < text.length && isW(text[i])) i++; tokens.push({ t: wordType(text.substring(ws, i), lang), v: text.substring(ws, i) }); continue; }
+        if ('()[]{}' .indexOf(c) >= 0) { tokens.push({ t: 'bracket', v: c }); i++; continue; }
+        if (c === '#' && lang === 'c') { var ps = i; i++; while (i < text.length && isW(text[i])) i++; tokens.push({ t: 'keyword', v: text.substring(ps, i) }); continue; }
+        if ('=+*/%!<>&|^~?:;,.-'.indexOf(c) >= 0) { tokens.push({ t: 'operator', v: c }); i++; continue; }
+        tokens.push({ t: 'plain', v: c }); i++;
+    }
+    return tokens.map(function (tk) {
+        var cls = { keyword: 'hl-keyword', string: 'hl-string', function: 'hl-function', number: 'hl-number', bracket: 'hl-bracket', operator: 'hl-operator', type: 'hl-type' }[tk.t];
+        return cls ? '<span class="' + cls + '">' + tk.v + '</span>' : tk.v;
+    }).join('');
+}
+
+function isW(c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c === '_'; }
+
+function wordType(word, lang) {
+    var kwMap = { python: ['def', 'return', 'if', 'elif', 'else', 'for', 'while', 'in', 'import', 'from', 'class', 'try', 'except', 'finally', 'with', 'as', 'lambda', 'pass', 'break', 'continue', 'and', 'or', 'not', 'is', 'True', 'False', 'None', 'yield', 'raise', 'del'], javascript: ['const', 'let', 'var', 'function', 'return', 'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'break', 'continue', 'class', 'new', 'this', 'typeof', 'try', 'catch', 'finally', 'throw', 'import', 'export', 'default', 'async', 'await', 'of', 'in', 'true', 'false', 'null', 'undefined'], java: ['public', 'private', 'protected', 'static', 'void', 'class', 'new', 'return', 'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'break', 'continue', 'try', 'catch', 'throw', 'import', 'extends', 'final', 'this', 'super', 'true', 'false', 'null'], c: ['int', 'float', 'double', 'char', 'void', 'long', 'short', 'unsigned', 'return', 'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'break', 'continue', 'struct', 'typedef', 'sizeof', 'const', 'static'], typescript: ['const', 'let', 'var', 'function', 'return', 'if', 'else', 'for', 'while', 'class', 'new', 'this', 'typeof', 'interface', 'type', 'enum', 'extends', 'implements', 'import', 'export', 'default', 'async', 'await', 'true', 'false', 'null', 'undefined', 'as', 'in', 'of'], lua: ['local', 'function', 'if', 'then', 'else', 'elseif', 'end', 'for', 'while', 'do', 'repeat', 'until', 'return', 'and', 'or', 'not', 'true', 'false', 'nil', 'in'], csharp: ['using', 'namespace', 'class', 'public', 'private', 'protected', 'static', 'void', 'new', 'return', 'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'break', 'continue', 'try', 'catch', 'throw', 'var', 'true', 'false', 'null', 'override', 'virtual', 'abstract'], gdscript: ['extends', 'func', 'var', 'const', 'if', 'elif', 'else', 'for', 'while', 'return', 'class_name', 'signal', 'export', 'onready', 'pass', 'break', 'continue', 'and', 'or', 'not', 'true', 'false', 'null', 'in', 'is', 'self'], css: ['@keyframes', '@media', 'from', 'to', 'hover', 'focus', 'active', 'root'] };
+    var fnMap = { python: ['print', 'input', 'range', 'len', 'type', 'int', 'str', 'float', 'bool', 'list', 'dict', 'abs', 'max', 'min', 'sum', 'sorted', 'enumerate', 'zip', 'map', 'filter', 'open', 'round'], javascript: ['console', 'log', 'alert', 'prompt', 'parseInt', 'parseFloat', 'Math', 'Array', 'Object', 'String', 'Number', 'JSON', 'document', 'window', 'setTimeout', 'push', 'pop', 'map', 'filter', 'reduce', 'forEach', 'querySelector', 'addEventListener'], java: ['System', 'out', 'println', 'print', 'Scanner', 'Math', 'Arrays', 'String'], c: ['printf', 'scanf', 'main', 'malloc', 'free', 'strlen'], typescript: ['console', 'log', 'Math', 'Array', 'Object', 'String', 'Number', 'JSON', 'Promise', 'fetch'], lua: ['print', 'tostring', 'tonumber', 'type', 'pairs', 'ipairs', 'table', 'string', 'math', 'require', 'error', 'pcall'], csharp: ['Console', 'WriteLine', 'ReadLine', 'Debug', 'Log', 'Math', 'ToString', 'GetAxis', 'Translate', 'Connect', 'GetComponent'], gdscript: ['print', 'str', 'int', 'float', 'Vector2', 'Vector3', 'Input', 'load', 'preload', 'move_and_slide', 'get_node', 'connect', 'is_action_pressed', 'normalized'], css: ['var', 'calc', 'rgb', 'rgba', 'linear-gradient', 'translateX', 'rotate', 'scale'] };
+    var tpMap = { java: ['int', 'double', 'float', 'char', 'boolean', 'String', 'long', 'short', 'byte'], csharp: ['int', 'float', 'double', 'string', 'bool', 'void', 'char', 'long', 'object', 'var'], typescript: ['string', 'number', 'boolean', 'void', 'any', 'never', 'unknown', 'null', 'undefined', 'object'], gdscript: ['int', 'float', 'String', 'bool', 'Vector2', 'Vector3', 'Array', 'Dictionary', 'Node', 'Node2D', 'CharacterBody2D'] };
+    if (tpMap[lang] && tpMap[lang].indexOf(word) >= 0) return 'type';
+    if (kwMap[lang] && kwMap[lang].indexOf(word) >= 0) return 'keyword';
+    if (fnMap[lang] && fnMap[lang].indexOf(word) >= 0) return 'function';
+    return 'plain';
+}
+
+// === RUN CODE — NO API, ALWAYS WORKS ===
+function escOut(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+function getPrintHint(lang) {
+    var h = { python: 'print()', javascript: 'console.log()', java: 'System.out.println()', c: 'printf()', typescript: 'console.log()', lua: 'print()', csharp: 'Console.WriteLine()', gdscript: 'print()' };
+    return h[lang] || 'print';
+}
+
+function clearCode() {
+    var input = document.getElementById('codeInput');
+    if (input) input.value = '';
+    onCodeInput();
+    var out = document.getElementById('runOutput');
+    if (out) { out.innerHTML = '<span class="output-empty">Run your code to see output here...</span>'; out.className = 'run-output'; }
+    var st = document.getElementById('outputStatus');
+    if (st) { st.textContent = '⏳ Waiting'; st.className = 'output-status waiting'; }
+    var info = document.getElementById('execInfo');
+    if (info) info.innerHTML = '<span>Ready</span><span></span>';
+}
+
+function formatOutput(text) {
+    if (!text || !text.trim()) return '';
+    var lines = text.split('\n');
+    while (lines.length > 0 && lines[lines.length - 1].trim() === '') lines.pop();
+    var html = '';
+    for (var i = 0; i < lines.length; i++) {
+        html += '<span class="output-line"><span class="output-line-num">' + (i + 1) + '</span>' + escOut(lines[i]) + '</span>';
+        if (i < lines.length - 1) html += '\n';
+    }
+    return html;
+}
+
+function runCode() {
+    var input = document.getElementById('codeInput');
+    var code = input ? input.value : '';
+    var output = document.getElementById('runOutput');
+    var status = document.getElementById('outputStatus');
+    var execInfo = document.getElementById('execInfo');
+    var startTime = performance.now();
+
+    if (!code.trim()) {
+        output.innerHTML = '<span class="output-empty">⚠️ Please write some code first!</span>';
+        output.className = 'run-output err';
+        status.textContent = '⚠️ Empty'; status.className = 'output-status error';
+        return;
+    }
+
+    output.innerHTML = '<span class="output-empty">⏳ Running...</span>';
+    output.className = 'run-output';
+    status.textContent = '⏳ Running...'; status.className = 'output-status waiting';
+
+    if (currentLang === 'javascript' || currentLang === 'typescript') {
+        runJavaScript(code, output, status, execInfo, startTime);
+    } else if (currentLang === 'html' || currentLang === 'css') {
+        runHTML(code, output, status, execInfo, startTime);
+    } else {
+        runSimulated(code, output, status, execInfo, startTime);
+    }
+}
+
+function runJavaScript(code, output, status, execInfo, startTime) {
+    var savedLog = console.log, savedWarn = console.warn, savedError = console.error;
+    try {
+        var results = [];
+        console.log = function () {
+            var args = Array.prototype.slice.call(arguments);
+            results.push(args.map(function (a) {
+                if (a === null) return 'null';
+                if (a === undefined) return 'undefined';
+                if (typeof a === 'object') { try { return JSON.stringify(a, null, 2); } catch (e) { return String(a); } }
+                return String(a);
+            }).join(' '));
+        };
+        console.warn = function () { results.push('⚠️ ' + Array.prototype.slice.call(arguments).join(' ')); };
+        console.error = function () { results.push('❌ ' + Array.prototype.slice.call(arguments).join(' ')); };
+
+        var returnVal = eval(code);
+        console.log = savedLog; console.warn = savedWarn; console.error = savedError;
+        var elapsed = (performance.now() - startTime).toFixed(0);
+
+        if (results.length > 0) {
+            output.innerHTML = formatOutput(results.join('\n'));
+            output.className = 'run-output';
+            status.textContent = '✅ Success'; status.className = 'output-status success';
+            execInfo.innerHTML = '<span>✅ Ran in ' + elapsed + 'ms</span><span>' + results.length + ' lines</span>';
+            showToast('✅ Code executed!', 'success');
+        } else if (returnVal !== undefined) {
+            output.innerHTML = '<span class="output-line"><span class="output-line-num">1</span>' + escOut(String(returnVal)) + '</span>';
+            output.className = 'run-output';
+            status.textContent = '✅ Success'; status.className = 'output-status success';
+            execInfo.innerHTML = '<span>✅ ' + elapsed + 'ms</span><span>1 line</span>';
+        } else {
+            output.innerHTML = '<span class="output-line"><span class="output-line-num">1</span>✅ Executed (no output)</span>\n<span class="output-line"><span class="output-line-num">💡</span>Use console.log() to see output</span>';
+            output.className = 'run-output';
+            status.textContent = '✅ Done'; status.className = 'output-status success';
+            execInfo.innerHTML = '<span>✅ ' + elapsed + 'ms</span><span>No output</span>';
+        }
+    } catch (err) {
+        console.log = savedLog; console.warn = savedWarn; console.error = savedError;
+        var elapsed2 = (performance.now() - startTime).toFixed(0);
+        output.innerHTML = '<span class="output-line"><span class="output-line-num">!</span>❌ ' + escOut(err.name) + ': ' + escOut(err.message) + '</span>\n<span class="output-line"><span class="output-line-num"> </span></span>\n<span class="output-line"><span class="output-line-num">💡</span>Check for typos or missing brackets</span>';
+        output.className = 'run-output err';
+        status.textContent = '❌ Error'; status.className = 'output-status error';
+        execInfo.innerHTML = '<span>❌ ' + elapsed2 + 'ms</span><span>' + escOut(err.name) + '</span>';
+        showToast('❌ Error in code', 'error');
+    }
+}
+
+function runHTML(code, output, status, execInfo, startTime) {
+    try {
+        var frame = document.createElement('iframe');
+        frame.style.cssText = 'display:none;width:0;height:0;border:none;';
+        frame.sandbox = 'allow-same-origin';
+        document.body.appendChild(frame);
+        frame.contentDocument.open();
+        frame.contentDocument.write(code);
+        frame.contentDocument.close();
+        var renderedText = (frame.contentDocument.body.innerText || '').trim();
+        document.body.removeChild(frame);
+        var elapsed = (performance.now() - startTime).toFixed(0);
+
+        if (renderedText) {
+            output.innerHTML = formatOutput(renderedText);
+            output.className = 'run-output';
+            status.textContent = '✅ Rendered'; status.className = 'output-status success';
+            execInfo.innerHTML = '<span>✅ ' + elapsed + 'ms</span><span>HTML/CSS</span>';
+        } else {
+            output.innerHTML = '<span class="output-line"><span class="output-line-num">1</span>✅ Rendered (no visible text)</span>';
+            output.className = 'run-output';
+            status.textContent = '✅ Rendered'; status.className = 'output-status success';
+            execInfo.innerHTML = '<span>✅ ' + elapsed + 'ms</span><span>HTML/CSS</span>';
+        }
+        showToast('✅ Rendered!', 'success');
+    } catch (err) {
+        output.innerHTML = '<span class="output-line"><span class="output-line-num">!</span>❌ ' + escOut(err.message) + '</span>';
+        output.className = 'run-output err';
+        status.textContent = '❌ Error'; status.className = 'output-status error';
+    }
+}
+
+function runSimulated(code, output, status, execInfo, startTime) {
+    var simLines = simulateOutput(code, currentLang);
+    var elapsed = (performance.now() - startTime).toFixed(0);
+
+    if (simLines.length > 0) {
+        var html = '<span class="output-line" style="color:#667eea"><span class="output-line-num">ℹ️</span>' + lessons[currentLang].name + ' — Simulated Output:</span>\n';
+        html += '<span class="output-line"><span class="output-line-num"> </span></span>\n';
+        html += formatOutput(simLines.join('\n'));
+        html += '\n<span class="output-line"><span class="output-line-num"> </span></span>';
+        html += '\n<span class="output-line" style="color:#888"><span class="output-line-num">💡</span>For real execution: use replit.com or switch to JavaScript</span>';
+
+        output.innerHTML = html;
+        output.className = 'run-output';
+        status.textContent = '✅ Simulated'; status.className = 'output-status success';
+        execInfo.innerHTML = '<span>✅ ' + elapsed + 'ms</span><span>' + simLines.length + ' lines</span>';
+        showToast('✅ Output simulated!', 'success');
+    } else {
+        output.innerHTML = '<span class="output-line"><span class="output-line-num">ℹ️</span>' + escOut(lessons[currentLang].name) + ' — no output detected</span>\n' +
+            '<span class="output-line"><span class="output-line-num"> </span></span>\n' +
+            '<span class="output-line"><span class="output-line-num">✅</span>JavaScript runs directly here — try switching!</span>\n' +
+            '<span class="output-line"><span class="output-line-num">🌐</span>Use replit.com for real ' + escOut(lessons[currentLang].name) + ' execution</span>\n' +
+            '<span class="output-line"><span class="output-line-num"> </span></span>\n' +
+            '<span class="output-line"><span class="output-line-num">💡</span>Add ' + escOut(getPrintHint(currentLang)) + ' to your code for simulated output</span>';
+        output.className = 'run-output';
+        status.textContent = 'ℹ️ Add print'; status.className = 'output-status waiting';
+        execInfo.innerHTML = '<span>No output detected</span><span>Add ' + escOut(getPrintHint(currentLang)) + '</span>';
+    }
+}
+
+function simulateOutput(code, lang) {
+    var outputs = [], match;
+    if (lang === 'python') {
+        var re = /print\s*\(([\s\S]*?)\)/g;
+        while ((match = re.exec(code)) !== null) {
+            var raw = match[1].trim();
+            if (!raw) { outputs.push(''); continue; }
+            var parts = splitArgs(raw);
+            outputs.push(parts.map(function (p) {
+                p = p.trim(); if (!p) return '';
+                if ((p.charAt(0) === '"' && p.charAt(p.length - 1) === '"') || (p.charAt(0) === "'" && p.charAt(p.length - 1) === "'")) return p.substring(1, p.length - 1);
+                try { var v = eval(p); if (v !== undefined) return String(v); } catch (e) {}
+                return p;
+            }).join(' '));
+        }
+    } else if (lang === 'java') {
+        var re2 = /System\.out\.println\s*\(\s*([\s\S]*?)\s*\)/g;
+        while ((match = re2.exec(code)) !== null) { var a = match[1].trim(); if (a.charAt(0) === '"') a = a.substring(1, a.length - 1); outputs.push(a); }
+    } else if (lang === 'c') {
+        var re3 = /printf\s*\(\s*"((?:[^"\\]|\\.)*)"/g;
+        while ((match = re3.exec(code)) !== null) {
+            match[1].replace(/\\n/g, '\n').replace(/\\t/g, '\t').split('\n').forEach(function (l) { if (l !== '') outputs.push(l); });
+        }
+    } else if (lang === 'lua' || lang === 'gdscript') {
+        var re4 = /print\s*\(([\s\S]*?)\)/g;
+        while ((match = re4.exec(code)) !== null) {
+            var la = match[1].trim();
+            if ((la.charAt(0) === '"' && la.charAt(la.length - 1) === '"') || (la.charAt(0) === "'" && la.charAt(la.length - 1) === "'")) outputs.push(la.substring(1, la.length - 1));
+            else outputs.push(la);
+        }
+    } else if (lang === 'csharp') {
+        var re5 = /Console\.WriteLine\s*\(\s*([\s\S]*?)\s*\)/g;
+        while ((match = re5.exec(code)) !== null) { var ca = match[1].trim(); if (ca.charAt(0) === '"') ca = ca.substring(1, ca.length - 1); outputs.push(ca); }
+    }
+    return outputs;
+}
+
+function splitArgs(str) {
+    var parts = [], inStr = false, strChar = '', current = '', depth = 0;
+    for (var i = 0; i < str.length; i++) {
+        var c = str.charAt(i);
+        if (!inStr && (c === '"' || c === "'")) { inStr = true; strChar = c; current += c; }
+        else if (inStr && c === strChar) { inStr = false; current += c; }
+        else if (!inStr && c === '(') { depth++; current += c; }
+        else if (!inStr && c === ')') { depth--; current += c; }
+        else if (!inStr && c === ',' && depth === 0) { parts.push(current.trim()); current = ''; }
+        else { current += c; }
+    }
+    if (current.trim()) parts.push(current.trim());
+    return parts;
+}
+
+// === QUIZ ===
+function renderQuiz() {
+    var qd = lessons[currentLang].quiz, ln = lessons[currentLang].name;
+    if (!qd || !qd.length) { document.getElementById('quizSection').innerHTML = '<div class="lesson-card"><h2>Quiz coming soon!</h2></div>'; return; }
+    var h = '<div class="quiz-section"><h3>🧠 ' + ln + ' Final Quiz</h3>';
+    qd.forEach(function (q, qi) {
+        h += '<div class="quiz-qb"><p>' + (qi + 1) + '. ' + q.question + '</p>';
+        q.options.forEach(function (o, oi) { h += '<div class="quiz-opt" onclick="checkQuiz(this,' + qi + ',' + oi + ')">' + o + '</div>'; });
+        h += '<div class="quiz-res" id="qr-' + qi + '"></div></div>';
+    });
+    h += '<div class="score-box" id="scoreBox"><h2 id="scoreText"></h2><p id="scoreMsg" style="margin-top:8px;color:var(--text-secondary)"></p></div></div>';
+    document.getElementById('quizSection').innerHTML = h;
+    window._qs = 0; window._qa = 0;
+}
+
+function checkQuiz(el, qi, oi) {
+    var qd = lessons[currentLang].quiz, c = qd[qi].correct, res = document.getElementById('qr-' + qi);
+    var opts = el.parentElement.querySelectorAll('.quiz-opt');
+    opts.forEach(function (o, i) { o.style.pointerEvents = 'none'; if (i === c) o.classList.add('correct'); });
+    if (oi === c) { el.classList.add('correct'); res.textContent = '✅ Correct!'; res.style.color = 'var(--accent-green)'; window._qs++; }
+    else { el.classList.add('wrong'); res.textContent = '❌ Wrong — correct is green'; res.style.color = 'var(--accent-red)'; }
+    res.style.display = 'block'; window._qa++;
+    if (window._qa === qd.length) {
+        var pct = Math.round((window._qs / qd.length) * 100);
+        document.getElementById('scoreText').textContent = 'Score: ' + window._qs + '/' + qd.length + ' (' + pct + '%)';
+        document.getElementById('scoreMsg').textContent = pct >= 80 ? '🎉 Excellent, Samuel!' : pct >= 60 ? '👍 Good! Review what you missed.' : '📚 Keep studying!';
+        document.getElementById('scoreBox').style.display = 'block';
+    }
+}
+
+// === UTILITY & INIT ===
+function copyCode(btn) {
+    var block = btn.nextElementSibling;
+    navigator.clipboard.writeText(block.innerText).then(function () {
+        btn.textContent = '✅ Copied!'; setTimeout(function () { btn.textContent = '📋 Copy'; }, 2000);
+    });
+}
+
+window.addEventListener('beforeunload', function () { pauseCurrentTimer(); saveState(); });
+
+(function () {
+    document.querySelectorAll('.lang-btn').forEach(function (btn) {
+        btn.classList.remove('active');
+        var t = btn.textContent.toLowerCase();
+        if (t.indexOf(currentLang) >= 0 ||
+            (currentLang === 'c' && t.indexOf('⚙️') >= 0) ||
+            (currentLang === 'html' && t.indexOf('🌐') >= 0) ||
+            (currentLang === 'csharp' && t.indexOf('💜') >= 0) ||
+            (currentLang === 'gdscript' && t.indexOf('🎮') >= 0) ||
+            (currentLang === 'css' && t.indexOf('🎨') >= 0) ||
+            (currentLang === 'lua' && t.indexOf('🌙') >= 0) ||
+            (currentLang === 'typescript' && t.indexOf('🔷') >= 0))
+            btn.classList.add('active');
+    });
+    document.getElementById('progressLang').textContent = lessons[currentLang].name;
+    renderTopicNav(); renderLesson(); updateProgress();
+})();
