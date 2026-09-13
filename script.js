@@ -543,13 +543,249 @@ function clearCode() {
     if (out) out.className = 'run-output';
 }
 
+// =============================================
+//  RUN CODE — USES PISTON API FOR REAL OUTPUT
+// =============================================
 function runCode() {
     var input = document.getElementById('codeInput');
     var code = input ? input.value : '';
     var output = document.getElementById('runOutput');
     var status = document.getElementById('outputStatus');
     var execInfo = document.getElementById('execInfo');
+
+    if (!code.trim()) {
+        output.innerHTML = '<span class="output-empty">⚠️ Please write some code first!</span>';
+        output.className = 'run-output err';
+        status.textContent = '⚠️ Empty';
+        status.className = 'output-status error';
+        return;
+    }
+
+    // Show loading state
+    output.innerHTML = '<span class="output-empty">⏳ Running your code...</span>';
+    status.textContent = '⏳ Running...';
+    status.className = 'output-status waiting';
+    execInfo.innerHTML = '<span>Sending to execution server...</span><span></span>';
+
     var startTime = performance.now();
+
+    // Map our language names to Piston API language names
+    var pistonLangs = {
+        python: { language: 'python', version: '3.10.0' },
+        javascript: { language: 'javascript', version: '18.15.0' },
+        java: { language: 'java', version: '15.0.2' },
+        c: { language: 'c', version: '10.2.0' },
+        html: null
+    };
+
+    var langConfig = pistonLangs[currentLang];
+
+    // HTML can't run on Piston — handle separately
+    if (!langConfig) {
+        runHTML(code, output, status, execInfo, startTime);
+        return;
+    }
+
+    // Call Piston API
+    fetch('https://emkc.org/api/v2/piston/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            language: langConfig.language,
+            version: langConfig.version,
+            files: [{
+                name: getFileName(currentLang),
+                content: code
+            })
+        })
+    })
+    .then(function (response) {
+        if (!response.ok) throw new Error('Server returned ' + response.status);
+        return response.json();
+    })
+    .then(function (data) {
+        var elapsed = (performance.now() - startTime).toFixed(0);
+        var stdout = (data.run && data.run.stdout) ? data.run.stdout.trim() : '';
+        var stderr = (data.run && data.run.stderr) ? data.run.stderr.trim() : '';
+        var exitCode = data.run ? data.run.code : -1;
+
+        if (stderr && !stdout) {
+            // Error only
+            var errLines = stderr.split('\n');
+            output.innerHTML = errLines.map(function (l, i) {
+                return '<span class="output-line"><span class="output-line-num">' + (i + 1) + '</span>' + escOut(l) + '</span>';
+            }).join('\n');
+            output.className = 'run-output err';
+            status.textContent = '❌ Error';
+            status.className = 'output-status error';
+            execInfo.innerHTML = '<span>❌ Failed in ' + elapsed + 'ms</span><span>Exit code: ' + exitCode + '</span>';
+            showToast('❌ Code has errors', 'error');
+        } else if (stdout) {
+            // Success — show output
+            var outLines = stdout.split('\n');
+            // Remove trailing empty line if exists
+            if (outLines[outLines.length - 1] === '') outLines.pop();
+
+            output.innerHTML = outLines.map(function (l, i) {
+                return '<span class="output-line"><span class="output-line-num">' + (i + 1) + '</span>' + escOut(l) + '</span>';
+            }).join('\n');
+
+            // If there's also stderr (warnings), append it
+            if (stderr) {
+                output.innerHTML += '\n<span class="output-line" style="color:#ff9800"><span class="output-line-num">⚠️</span>' + escOut(stderr.split('\n')[0]) + '</span>';
+            }
+
+            output.className = 'run-output';
+            status.textContent = '✅ Success';
+            status.className = 'output-status success';
+            execInfo.innerHTML = '<span>✅ Ran in ' + elapsed + 'ms</span><span>' + outLines.length + ' line' + (outLines.length !== 1 ? 's' : '') + ' | Exit: ' + exitCode + '</span>';
+            showToast('✅ Code executed successfully!', 'success');
+        } else {
+            // No output, no error
+            output.innerHTML = '<span class="output-line"><span class="output-line-num">1</span>✅ Code executed successfully (no output)</span>\n' +
+                '<span class="output-line"><span class="output-line-num">2</span></span>\n' +
+                '<span class="output-line"><span class="output-line-num">💡</span>Use ' + getPrintFunction(currentLang) + ' to see output</span>';
+            output.className = 'run-output';
+            status.textContent = '✅ Done';
+            status.className = 'output-status success';
+            execInfo.innerHTML = '<span>✅ Ran in ' + elapsed + 'ms</span><span>No output | Exit: ' + exitCode + '</span>';
+        }
+    })
+    .catch(function (error) {
+        var elapsed = (performance.now() - startTime).toFixed(0);
+
+        // If API fails, fall back to local simulation
+        console.warn('Piston API failed, using local simulation:', error.message);
+        runLocally(code, output, status, execInfo, startTime);
+    });
+}
+
+// =============================================
+//  HELPER FUNCTIONS
+// =============================================
+function getFileName(lang) {
+    var names = {
+        python: 'main.py',
+        javascript: 'main.js',
+        java: 'Main.java',
+        c: 'main.c'
+    };
+    return names[lang] || 'main.txt';
+}
+
+function getPrintFunction(lang) {
+    var fns = {
+        python: 'print()',
+        javascript: 'console.log()',
+        java: 'System.out.println()',
+        c: 'printf()'
+    };
+    return fns[lang] || 'print';
+}
+
+// =============================================
+//  HTML RUNNER (runs in iframe)
+// =============================================
+function runHTML(code, output, status, execInfo, startTime) {
+    try {
+        var frame = document.createElement('iframe');
+        frame.style.display = 'none';
+        frame.sandbox = 'allow-same-origin';
+        document.body.appendChild(frame);
+        frame.contentDocument.open();
+        frame.contentDocument.write(code);
+        frame.contentDocument.close();
+        var txt = frame.contentDocument.body.innerText || '';
+        document.body.removeChild(frame);
+        var elapsed = (performance.now() - startTime).toFixed(0);
+
+        if (txt.trim()) {
+            var lines = txt.trim().split('\n');
+            output.innerHTML = lines.map(function (l, i) {
+                return '<span class="output-line"><span class="output-line-num">' + (i + 1) + '</span>' + escOut(l) + '</span>';
+            }).join('\n');
+        } else {
+            output.innerHTML = '<span class="output-line"><span class="output-line-num">1</span>✅ HTML rendered successfully (no text content)</span>';
+        }
+        output.className = 'run-output';
+        status.textContent = '✅ Rendered';
+        status.className = 'output-status success';
+        execInfo.innerHTML = '<span>✅ Rendered in ' + elapsed + 'ms</span><span>HTML</span>';
+    } catch (err) {
+        output.innerHTML = '<span class="output-line"><span class="output-line-num">!</span>❌ ' + escOut(err.message) + '</span>';
+        output.className = 'run-output err';
+        status.textContent = '❌ Error';
+        status.className = 'output-status error';
+    }
+}
+
+// =============================================
+//  LOCAL FALLBACK (if API is down)
+// =============================================
+function runLocally(code, output, status, execInfo, startTime) {
+    var elapsed = (performance.now() - startTime).toFixed(0);
+
+    if (currentLang === 'javascript') {
+        // JavaScript can actually run in the browser
+        try {
+            var results = [];
+            var oL = console.log, oW = console.warn, oE = console.error;
+            console.log = function () {
+                results.push(Array.prototype.slice.call(arguments).map(function (a) {
+                    return typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a);
+                }).join(' '));
+            };
+            console.warn = function () { results.push('⚠️ ' + Array.prototype.slice.call(arguments).join(' ')); };
+            console.error = function () { results.push('❌ ' + Array.prototype.slice.call(arguments).join(' ')); };
+            var ret = eval(code);
+            console.log = oL; console.warn = oW; console.error = oE;
+
+            elapsed = (performance.now() - startTime).toFixed(0);
+
+            if (results.length > 0) {
+                output.innerHTML = results.map(function (r, i) {
+                    return '<span class="output-line"><span class="output-line-num">' + (i + 1) + '</span>' + escOut(r) + '</span>';
+                }).join('\n');
+            } else if (ret !== undefined) {
+                output.innerHTML = '<span class="output-line"><span class="output-line-num">1</span>' + escOut(String(ret)) + '</span>';
+            } else {
+                output.innerHTML = '<span class="output-line"><span class="output-line-num">1</span>✅ Executed (no output). Use console.log()!</span>';
+            }
+            output.className = 'run-output';
+            status.textContent = '✅ Success (local)';
+            status.className = 'output-status success';
+            execInfo.innerHTML = '<span>✅ Ran locally in ' + elapsed + 'ms</span><span>' + results.length + ' lines</span>';
+            showToast('✅ Code ran locally!', 'success');
+        } catch (err) {
+            output.innerHTML = '<span class="output-line"><span class="output-line-num">!</span>❌ ' + escOut(err.name) + ': ' + escOut(err.message) + '</span>\n<span class="output-line"><span class="output-line-num"> </span></span>\n<span class="output-line"><span class="output-line-num">💡</span>Check for typos or missing brackets</span>';
+            output.className = 'run-output err';
+            status.textContent = '❌ Error';
+            status.className = 'output-status error';
+            execInfo.innerHTML = '<span>❌ Failed</span><span>' + err.name + '</span>';
+            showToast('❌ Error in code', 'error');
+        }
+    } else {
+        // Simulate for Python/Java/C
+        var simResult = simulateOutput(code, currentLang);
+        elapsed = (performance.now() - startTime).toFixed(0);
+
+        if (simResult.lines.length > 0) {
+            output.innerHTML = '<span class="output-line" style="color:#ff9800"><span class="output-line-num">⚠️</span>Server unavailable — showing simulated output</span>\n<span class="output-line"><span class="output-line-num"> </span></span>\n' +
+                simResult.lines.map(function (l, i) {
+                    return '<span class="output-line"><span class="output-line-num">' + (i + 1) + '</span>' + escOut(l) + '</span>';
+                }).join('\n');
+            status.textContent = '⚠️ Simulated';
+            status.className = 'output-status waiting';
+            execInfo.innerHTML = '<span>⚠️ API offline — simulated in ' + elapsed + 'ms</span><span>' + simResult.lines.length + ' lines</span>';
+        } else {
+            output.innerHTML = '<span class="output-line"><span class="output-line-num">⚠️</span>API server is temporarily unavailable</span>\n<span class="output-line"><span class="output-line-num"> </span></span>\n<span class="output-line"><span class="output-line-num">🔧</span>Try again in a moment, or use <a href="https://replit.com" target="_blank" style="color:var(--accent-primary)">replit.com</a></span>\n<span class="output-line"><span class="output-line-num">💡</span>Make sure your code has ' + getPrintFunction(currentLang) + ' statements</span>';
+            status.textContent = '⚠️ Offline';
+            status.className = 'output-status waiting';
+            execInfo.innerHTML = '<span>API unavailable</span><span>Try again later</span>';
+        }
+        output.className = 'run-output';
+    }
+}
 
     if (!code.trim()) {
         output.innerHTML = '<span class="output-empty">⚠️ Please write some code first!</span>';
