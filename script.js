@@ -828,98 +828,766 @@ function showSection(section, navLink) {
 }
 
 // =============================================
-//  SECTION 12: PRACTICE
+//  SECTION 12: PRACTICE — COMPLETELY FIXED
 // =============================================
 function getPlaceholder(lang) {
-    var p = { python:'print("Hello!")', javascript:'console.log("Hello!");', java:'System.out.println("Hello!");', c:'printf("Hello!\\n");', html:'<h1>Hello!</h1>', typescript:'console.log("Hello!");', lua:'print("Hello!")', csharp:'Console.WriteLine("Hello!");', gdscript:'print("Hello!")', css:'.box { color: red; }' };
-    return p[lang] || '';
+    var p = {
+        python: 'print("Hello, World!")',
+        javascript: 'console.log("Hello!");',
+        java: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello!");\n    }\n}',
+        c: '#include <stdio.h>\n\nint main() {\n    printf("Hello!\\n");\n    return 0;\n}',
+        html: '<h1>Hello!</h1>\n<p>Welcome to my site</p>',
+        typescript: 'console.log("Hello!");',
+        lua: 'print("Hello, World!")',
+        csharp: 'using System;\n\nclass Program {\n    static void Main() {\n        Console.WriteLine("Hello!");\n    }\n}',
+        gdscript: 'func _ready():\n    print("Hello!")',
+        css: '.box {\n    color: red;\n    padding: 20px;\n}'
+    };
+    return p[lang] || 'Type your code here...';
+}
+
+function getChallenges(lang) {
+    var challenges = {
+        python: [
+            { diff: 'e', title: 'Hello World', desc: 'Print "Hello, World!"', code: 'print("Hello, World!")' },
+            { diff: 'e', title: 'Math', desc: 'Print 15 + 27', code: 'print(15 + 27)' },
+            { diff: 'm', title: 'Variables', desc: 'Create name and age variables, print them', code: 'name = "Samuel"\nage = 13\nprint("Name:", name)\nprint("Age:", age)' },
+            { diff: 'h', title: 'Loop', desc: 'Print numbers 1 to 5', code: 'for i in range(1, 6):\n    print(i)' }
+        ],
+        javascript: [
+            { diff: 'e', title: 'Hello World', desc: 'Log "Hello, World!"', code: 'console.log("Hello, World!");' },
+            { diff: 'e', title: 'Math', desc: 'Log 10 + 20', code: 'console.log(10 + 20);' },
+            { diff: 'm', title: 'Variables', desc: 'Create and log a variable', code: 'let name = "Samuel";\nconsole.log("Hello,", name);' },
+            { diff: 'h', title: 'Loop', desc: 'Print 1 to 5 using a for loop', code: 'for (let i = 1; i <= 5; i++) {\n    console.log(i);\n}' }
+        ],
+        java: [
+            { diff: 'e', title: 'Hello World', desc: 'Print Hello World', code: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}' },
+            { diff: 'm', title: 'Variables', desc: 'Create and print variables', code: 'public class Main {\n    public static void main(String[] args) {\n        String name = "Samuel";\n        int age = 13;\n        System.out.println("Name: " + name);\n        System.out.println("Age: " + age);\n    }\n}' }
+        ],
+        c: [
+            { diff: 'e', title: 'Hello World', desc: 'Print Hello World', code: '#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}' },
+            { diff: 'm', title: 'Variables', desc: 'Create and print variables', code: '#include <stdio.h>\n\nint main() {\n    char name[] = "Samuel";\n    int age = 13;\n    printf("Name: %s\\n", name);\n    printf("Age: %d\\n", age);\n    return 0;\n}' }
+        ],
+        typescript: [
+            { diff: 'e', title: 'Hello World', desc: 'Log with types', code: 'let name: string = "Samuel";\nconsole.log("Hello,", name);' }
+        ],
+        lua: [
+            { diff: 'e', title: 'Hello World', desc: 'Print Hello World', code: 'print("Hello, World!")' },
+            { diff: 'm', title: 'Variables', desc: 'Create and print variables', code: 'local name = "Samuel"\nlocal age = 13\nprint("Name: " .. name)\nprint("Age: " .. age)' }
+        ],
+        csharp: [
+            { diff: 'e', title: 'Hello World', desc: 'Print Hello World', code: 'using System;\n\nclass Program {\n    static void Main() {\n        Console.WriteLine("Hello, World!");\n    }\n}' }
+        ],
+        gdscript: [
+            { diff: 'e', title: 'Hello World', desc: 'Print Hello World', code: 'extends Node\n\nfunc _ready():\n    print("Hello, World!")' }
+        ],
+        html: [
+            { diff: 'e', title: 'Basic Page', desc: 'Create a heading and paragraph', code: '<!DOCTYPE html>\n<html>\n<body>\n    <h1>Hello!</h1>\n    <p>Welcome to my site</p>\n</body>\n</html>' }
+        ],
+        css: [
+            { diff: 'e', title: 'Style a Box', desc: 'Create a colored box', code: '.box {\n    background: #667eea;\n    color: white;\n    padding: 20px;\n    border-radius: 10px;\n    text-align: center;\n}' }
+        ]
+    };
+
+    var langChallenges = challenges[lang] || [];
+    if (langChallenges.length === 0) {
+        return '<div class="challenge-card"><p>No challenges yet for this language. Try writing your own code!</p></div>';
+    }
+
+    var html = '';
+    for (var i = 0; i < langChallenges.length; i++) {
+        var ch = langChallenges[i];
+        var diffClass = ch.diff === 'e' ? 'diff-e' : ch.diff === 'm' ? 'diff-m' : 'diff-h';
+        var diffLabel = ch.diff === 'e' ? 'Easy' : ch.diff === 'm' ? 'Medium' : 'Hard';
+
+        // Escape the code for the onclick attribute
+        var escapedCode = ch.code.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
+
+        html += '<div class="challenge-card">' +
+            '<span class="diff ' + diffClass + '">' + diffLabel + '</span>' +
+            '<h4>🎯 ' + ch.title + '</h4>' +
+            '<p>' + ch.desc + '</p>' +
+            '<button class="try-btn" onclick="loadChallenge(&quot;' + escapedCode + '&quot;)">📝 Load Template</button>' +
+            '</div>';
+    }
+    return html;
 }
 
 function renderPractice() {
     var lang = lessons[currentLang];
     previewVisible = false;
-    document.getElementById('practiceSection').innerHTML =
-        '<div class="practice-section"><h3>✍️ Practice ' + lang.name + '</h3>' +
-        '<p style="color:var(--text-secondary);margin-bottom:14px;font-size:13px">Type code, click Preview for colors, click Run for real output via Piston API!</p>' +
-        '<div class="editor-box"><div class="editor-top"><div class="dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div><span class="editor-label">' + lang.icon + ' ' + lang.name + '</span></div>' +
-        '<div class="editor-main" style="position:relative"><div class="line-numbers" id="lineNums">1</div>' +
-        '<textarea id="codeInput" spellcheck="false" placeholder="' + getPlaceholder(currentLang) + '" oninput="onCodeInput()" onscroll="syncLineNumbers()"></textarea></div>' +
-        '<div class="preview-toggle-bar"><span id="charInfo">0 chars | 1 line</span><button class="preview-btn" id="previewBtn" onclick="togglePreview()">👁️ Preview</button></div>' +
-        '<div class="code-preview" id="codePreview"></div>' +
-        '<div class="editor-bottom"><span style="color:#888;font-size:11px">🌐 Piston API</span><div class="btn-row"><button class="clr-btn" onclick="clearCode()">🗑️ Clear</button><button class="run-btn" onclick="runCode()">▶ Run</button></div></div></div>' +
-        '<div class="output-wrapper"><div class="output-tab-bar"><div class="output-tab active">📟 Output</div><div style="flex:1"></div><span class="output-status waiting" id="outputStatus">⏳ Waiting</span></div>' +
-        '<div class="run-output" id="runOutput"><span class="output-empty">Run your code to see output...</span></div>' +
-        '<div class="execution-info" id="execInfo"><span>Ready</span><span></span></div></div></div>';
+
+    var challengeHTML = getChallenges(currentLang);
+    var placeholder = getPlaceholder(currentLang);
+    // Escape placeholder for HTML attribute
+    var escapedPlaceholder = placeholder.replace(/"/g, '&quot;').replace(/\n/g, '&#10;');
+
+    var html = '<div class="practice-section">';
+
+    // Header
+    html += '<h3>✍️ Practice ' + lang.name + '</h3>';
+    html += '<p style="color:var(--text-secondary);margin-bottom:14px;font-size:13px">';
+    html += 'Type code in the editor. Click <strong>👁️ Preview</strong> for syntax highlighting. Click <strong>▶ Run</strong> to execute your code!';
+    html += '</p>';
+
+    // Editor box
+    html += '<div class="editor-box">';
+
+    // Editor top bar
+    html += '<div class="editor-top">';
+    html += '<div class="dots"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span></div>';
+    html += '<span class="editor-label">' + lang.icon + ' ' + lang.name + '</span>';
+    html += '</div>';
+
+    // Editor main area with line numbers and textarea
+    html += '<div class="editor-main" style="position:relative">';
+    html += '<div class="line-numbers" id="lineNums">1</div>';
+    html += '<textarea id="codeInput" spellcheck="false" placeholder="' + escapedPlaceholder + '" oninput="onCodeInput()" onscroll="syncLineNumbers()"></textarea>';
+    html += '</div>';
+
+    // Preview toggle bar
+    html += '<div class="preview-toggle-bar">';
+    html += '<span id="charInfo">0 chars | 1 line</span>';
+    html += '<button class="preview-btn" id="previewBtn" onclick="togglePreview()">👁️ Preview</button>';
+    html += '</div>';
+
+    // Preview panel (hidden by default)
+    html += '<div class="code-preview" id="codePreview"></div>';
+
+    // Editor bottom bar with buttons
+    html += '<div class="editor-bottom">';
+    html += '<span style="color:#888;font-size:11px">🌐 Powered by Piston API</span>';
+    html += '<div class="btn-row">';
+    html += '<button class="clr-btn" onclick="clearCode()">🗑️ Clear</button>';
+    html += '<button class="run-btn" onclick="runCode()">▶ Run Code</button>';
+    html += '</div>';
+    html += '</div>';
+
+    html += '</div>'; // Close editor-box
+
+    // Output section
+    html += '<div class="output-wrapper">';
+    html += '<div class="output-tab-bar">';
+    html += '<div class="output-tab active">📟 Output</div>';
+    html += '<div style="flex:1"></div>';
+    html += '<span class="output-status waiting" id="outputStatus">⏳ Waiting</span>';
+    html += '</div>';
+    html += '<div class="run-output" id="runOutput"><span class="output-empty">Run your code to see output here...</span></div>';
+    html += '<div class="execution-info" id="execInfo"><span>Ready</span><span></span></div>';
+    html += '</div>';
+
+    // Challenges section
+    html += '<div class="challenge-header"><h3>🎯 Challenges</h3></div>';
+    html += challengeHTML;
+
+    html += '</div>'; // Close practice-section
+
+    document.getElementById('practiceSection').innerHTML = html;
+}
+
+function loadChallenge(code) {
+    var input = document.getElementById('codeInput');
+    if (input) {
+        // Unescape the code
+        var unescaped = code.replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+        input.value = unescaped;
+        onCodeInput();
+        input.focus();
+        showToast('📝 Template loaded! Click ▶ Run to execute.', 'info');
+    }
 }
 
 function onCodeInput() {
-    var input = document.getElementById('codeInput'); if (!input) return;
-    var lines = input.value.split('\n').length;
+    var input = document.getElementById('codeInput');
+    if (!input) return;
+
+    var code = input.value;
+    var lines = code.split('\n').length;
+    var chars = code.length;
+
+    // Update char/line count
     var info = document.getElementById('charInfo');
-    if (info) info.textContent = input.value.length + ' chars | ' + lines + ' lines';
+    if (info) {
+        info.textContent = chars + ' chars | ' + lines + ' line' + (lines !== 1 ? 's' : '');
+    }
+
+    // Update line numbers
     updateLineNumbers(lines);
-    if (previewVisible) updatePreview();
+
+    // Update preview if visible
+    if (previewVisible) {
+        updatePreview();
+    }
 }
 
 function updateLineNumbers(count) {
-    var el = document.getElementById('lineNums'); if (!el) return;
-    var nums = []; for (var i = 1; i <= count; i++) nums.push(i);
+    var el = document.getElementById('lineNums');
+    if (!el) return;
+    var nums = [];
+    for (var i = 1; i <= count; i++) {
+        nums.push(i);
+    }
     el.textContent = nums.join('\n');
 }
 
 function syncLineNumbers() {
-    var input = document.getElementById('codeInput'), nums = document.getElementById('lineNums');
-    if (input && nums) nums.style.transform = 'translateY(-' + input.scrollTop + 'px)';
+    var input = document.getElementById('codeInput');
+    var nums = document.getElementById('lineNums');
+    if (input && nums) {
+        nums.style.transform = 'translateY(-' + input.scrollTop + 'px)';
+    }
 }
 
+// Tab key support
 document.addEventListener('keydown', function (e) {
-    if (e.target.id === 'codeInput' && e.key === 'Tab') {
-        e.preventDefault(); var inp = e.target, s = inp.selectionStart, en = inp.selectionEnd;
-        inp.value = inp.value.substring(0, s) + '    ' + inp.value.substring(en);
-        inp.selectionStart = inp.selectionEnd = s + 4; onCodeInput();
+    if (e.target && e.target.id === 'codeInput' && e.key === 'Tab') {
+        e.preventDefault();
+        var input = e.target;
+        var start = input.selectionStart;
+        var end = input.selectionEnd;
+        input.value = input.value.substring(0, start) + '    ' + input.value.substring(end);
+        input.selectionStart = input.selectionEnd = start + 4;
+        onCodeInput();
     }
 });
 
+// =============================================
+//  SECTION 12B: PREVIEW PANEL
+// =============================================
 function togglePreview() {
     previewVisible = !previewVisible;
-    var p = document.getElementById('codePreview'), b = document.getElementById('previewBtn');
-    if (previewVisible) { p.classList.add('visible'); b.classList.add('active'); b.textContent = '👁️ Hide'; updatePreview(); }
-    else { p.classList.remove('visible'); b.classList.remove('active'); b.textContent = '👁️ Preview'; }
+    var preview = document.getElementById('codePreview');
+    var btn = document.getElementById('previewBtn');
+
+    if (!preview || !btn) return;
+
+    if (previewVisible) {
+        preview.classList.add('visible');
+        btn.classList.add('active');
+        btn.textContent = '👁️ Hide Preview';
+        updatePreview();
+    } else {
+        preview.classList.remove('visible');
+        btn.classList.remove('active');
+        btn.textContent = '👁️ Preview';
+    }
 }
 
 function updatePreview() {
-    var input = document.getElementById('codeInput'), preview = document.getElementById('codePreview');
+    var input = document.getElementById('codeInput');
+    var preview = document.getElementById('codePreview');
     if (!input || !preview) return;
-    if (!input.value.trim()) { preview.innerHTML = '<span class="output-empty">Type code...</span>'; return; }
-    preview.innerHTML = colorize(input.value, currentLang);
+
+    var code = input.value;
+    if (!code.trim()) {
+        preview.innerHTML = '<span class="output-empty">Type some code to see the preview...</span>';
+        return;
+    }
+    preview.innerHTML = colorize(code, currentLang);
 }
 
 // =============================================
-//  SECTION 13: COLORIZE (for preview)
+//  SECTION 13: RUN CODE — PISTON API + FALLBACK
 // =============================================
-function colorize(code, lang) {
-    var e = code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    return e.split('\n').map(function(l){return colorizeLine(l,lang);}).join('\n');
+function escOut(text) {
+    return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
-function colorizeLine(line, lang) {
-    var marker = (lang==='python'||lang==='lua'||lang==='gdscript') ? '#' : '//';
-    if (lang==='lua') { var dIdx=line.indexOf('--'); if(dIdx>=0) return tokenize(line.substring(0,dIdx),lang)+'<span class="hl-comment">'+line.substring(dIdx)+'</span>'; }
-    if (lang==='html'||lang==='css') return line;
-    var idx = findComment(line, marker);
-    if (idx>=0) return tokenize(line.substring(0,idx),lang)+'<span class="hl-comment">'+line.substring(idx)+'</span>';
-    return tokenize(line, lang);
+
+function getFileName(lang) {
+    var names = {
+        python: 'main.py',
+        javascript: 'main.js',
+        java: 'Main.java',
+        c: 'main.c',
+        typescript: 'main.ts',
+        lua: 'main.lua',
+        csharp: 'Main.cs',
+        gdscript: 'main.gd'
+    };
+    return names[lang] || 'main.txt';
 }
-function findComment(line,marker){var inStr=false,ch='';for(var i=0;i<line.length;i++){var c=line[i];if(!inStr&&(c==='"'||c==="'"))inStr=true,ch=c;else if(inStr&&c===ch)inStr=false;else if(!inStr&&line.substring(i,i+marker.length)===marker)return i;}return -1;}
-function tokenize(text,lang){var tokens=[],i=0;while(i<text.length){var c=text[i];if(c==='"'||c==="'"||c==='`'){var s=i,q=c;i++;while(i<text.length&&text[i]!==q){if(text[i]==='\\')i++;i++;}if(i<text.length)i++;tokens.push({t:'string',v:text.substring(s,i)});continue;}if(c>='0'&&c<='9'){var ns=i;while(i<text.length&&((text[i]>='0'&&text[i]<='9')||text[i]==='.'))i++;if(i<text.length&&isW(text[i])){while(i<text.length&&isW(text[i]))i++;tokens.push({t:'plain',v:text.substring(ns,i)});}else tokens.push({t:'number',v:text.substring(ns,i)});continue;}if(isW(c)){var ws=i;while(i<text.length&&isW(text[i]))i++;tokens.push({t:wordType(text.substring(ws,i),lang),v:text.substring(ws,i)});continue;}if('()[]{}' .indexOf(c)>=0){tokens.push({t:'bracket',v:c});i++;continue;}if(c==='#'&&(lang==='c')){var ps=i;i++;while(i<text.length&&isW(text[i]))i++;tokens.push({t:'keyword',v:text.substring(ps,i)});continue;}if('=+*/%!<>&|^~?:;,.-'.indexOf(c)>=0){tokens.push({t:'operator',v:c});i++;continue;}tokens.push({t:'plain',v:c});i++;}return tokens.map(function(tk){var cls={keyword:'hl-keyword',string:'hl-string',function:'hl-function',number:'hl-number',bracket:'hl-bracket',operator:'hl-operator',type:'hl-type'}[tk.t];return cls?'<span class="'+cls+'">'+tk.v+'</span>':tk.v;}).join('');}
-function isW(c){return(c>='a'&&c<='z')||(c>='A'&&c<='Z')||(c>='0'&&c<='9')||c==='_';}
-function wordType(word,lang){
-    var kw={python:['def','return','if','elif','else','for','while','in','import','from','class','try','except','finally','with','as','lambda','pass','break','continue','and','or','not','is','True','False','None','yield','raise','del'],javascript:['const','let','var','function','return','if','else','for','while','do','switch','case','break','continue','class','new','this','typeof','try','catch','finally','throw','import','export','default','async','await','of','in','true','false','null','undefined'],java:['public','private','protected','static','void','class','new','return','if','else','for','while','do','switch','case','break','continue','try','catch','throw','import','extends','final','this','super','true','false','null'],c:['int','float','double','char','void','long','short','unsigned','return','if','else','for','while','do','switch','case','break','continue','struct','typedef','sizeof','const','static'],typescript:['const','let','var','function','return','if','else','for','while','class','new','this','typeof','interface','type','enum','extends','implements','import','export','default','async','await','true','false','null','undefined','as','in','of'],lua:['local','function','if','then','else','elseif','end','for','while','do','repeat','until','return','and','or','not','true','false','nil','in'],csharp:['using','namespace','class','public','private','protected','static','void','new','return','if','else','for','while','do','switch','case','break','continue','try','catch','throw','var','int','float','double','string','bool','true','false','null','override','virtual','abstract','interface','extends'],gdscript:['extends','func','var','const','if','elif','else','for','while','return','class_name','signal','export','onready','pass','break','continue','and','or','not','true','false','null','in','is','as','self'],css:['@keyframes','@media','from','to','hover','focus','active','root']};
-    var fn_map={python:['print','input','range','len','type','int','str','float','bool','list','dict','abs','max','min','sum','sorted','enumerate','zip','map','filter','open','round'],javascript:['console','log','alert','prompt','parseInt','parseFloat','Math','Array','Object','String','Number','JSON','document','window','setTimeout','push','pop','map','filter','reduce','forEach','querySelector','addEventListener'],java:['System','out','println','print','Scanner','Math','Arrays','String'],c:['printf','scanf','main','malloc','free','strlen'],typescript:['console','log','Math','Array','Object','String','Number','JSON','Promise','fetch'],lua:['print','tostring','tonumber','type','pairs','ipairs','table','string','math','os','io','require','error','pcall'],csharp:['Console','WriteLine','ReadLine','Debug','Log','Math','ToString','GetAxis','Translate','Connect','GetComponent'],gdscript:['print','str','int','float','Vector2','Vector3','Input','load','preload','move_and_slide','get_node','connect','is_action_pressed','normalized'],css:['var','calc','rgb','rgba','hsl','hsla','linear-gradient','translateX','translateY','rotate','scale']};
-    var tp_map={java:['int','double','float','char','boolean','String','long','short','byte'],csharp:['int','float','double','string','bool','void','char','long','byte','object','var'],typescript:['string','number','boolean','void','any','never','unknown','null','undefined','object'],gdscript:['int','float','String','bool','Vector2','Vector3','Array','Dictionary','Node','Node2D','CharacterBody2D']};
-    if(tp_map[lang]&&tp_map[lang].indexOf(word)>=0)return'type';
-    if(kw[lang]&&kw[lang].indexOf(word)>=0)return'keyword';
-    if(fn_map[lang]&&fn_map[lang].indexOf(word)>=0)return'function';
-    return'plain';
+
+function getPrintHint(lang) {
+    var hints = {
+        python: 'print()',
+        javascript: 'console.log()',
+        java: 'System.out.println()',
+        c: 'printf()',
+        typescript: 'console.log()',
+        lua: 'print()',
+        csharp: 'Console.WriteLine()',
+        gdscript: 'print()'
+    };
+    return hints[lang] || 'print';
+}
+
+function clearCode() {
+    var input = document.getElementById('codeInput');
+    if (input) input.value = '';
+    onCodeInput();
+
+    var out = document.getElementById('runOutput');
+    if (out) {
+        out.innerHTML = '<span class="output-empty">Run your code to see output here...</span>';
+        out.className = 'run-output';
+    }
+
+    var status = document.getElementById('outputStatus');
+    if (status) {
+        status.textContent = '⏳ Waiting';
+        status.className = 'output-status waiting';
+    }
+
+    var info = document.getElementById('execInfo');
+    if (info) info.innerHTML = '<span>Ready</span><span></span>';
+}
+
+function formatOutput(text) {
+    if (!text || !text.trim()) return '';
+
+    var lines = text.split('\n');
+
+    // Remove trailing empty lines
+    while (lines.length > 0 && lines[lines.length - 1].trim() === '') {
+        lines.pop();
+    }
+
+    var html = '';
+    for (var i = 0; i < lines.length; i++) {
+        html += '<span class="output-line">';
+        html += '<span class="output-line-num">' + (i + 1) + '</span>';
+        html += escOut(lines[i]);
+        html += '</span>';
+        if (i < lines.length - 1) html += '\n';
+    }
+    return html;
+}
+
+function runCode() {
+    var input = document.getElementById('codeInput');
+    var code = input ? input.value : '';
+    var output = document.getElementById('runOutput');
+    var status = document.getElementById('outputStatus');
+    var execInfo = document.getElementById('execInfo');
+    var startTime = performance.now();
+
+    // Check for empty code
+    if (!code.trim()) {
+        output.innerHTML = '<span class="output-empty">⚠️ Please write some code first!</span>';
+        output.className = 'run-output err';
+        status.textContent = '⚠️ Empty';
+        status.className = 'output-status error';
+        execInfo.innerHTML = '<span>No code to run</span><span></span>';
+        return;
+    }
+
+    // Show loading state
+    output.innerHTML = '<span class="output-empty">⏳ Running your code...</span>';
+    output.className = 'run-output';
+    status.textContent = '⏳ Running...';
+    status.className = 'output-status waiting';
+    execInfo.innerHTML = '<span>Sending to server...</span><span></span>';
+
+    // HTML and CSS run locally
+    if (currentLang === 'html' || currentLang === 'css') {
+        runHTML(code, output, status, execInfo, startTime);
+        return;
+    }
+
+    // GDScript is not supported by Piston
+    if (currentLang === 'gdscript') {
+        var elapsed = (performance.now() - startTime).toFixed(0);
+        output.innerHTML = '<span class="output-line"><span class="output-line-num">ℹ️</span>GDScript runs in Godot Engine, not in browsers</span>\n' +
+            '<span class="output-line"><span class="output-line-num"> </span></span>\n' +
+            '<span class="output-line"><span class="output-line-num">🔧</span>Download Godot from godotengine.org (free!)</span>\n' +
+            '<span class="output-line"><span class="output-line-num">💡</span>Paste your code into a Godot script to test it</span>';
+        output.className = 'run-output';
+        status.textContent = 'ℹ️ Use Godot';
+        status.className = 'output-status waiting';
+        execInfo.innerHTML = '<span>GDScript needs Godot Engine</span><span></span>';
+        return;
+    }
+
+    // Piston API language configs
+    var pistonLangs = {
+        python: { language: 'python', version: '3.10.0' },
+        javascript: { language: 'javascript', version: '18.15.0' },
+        java: { language: 'java', version: '15.0.2' },
+        c: { language: 'c', version: '10.2.0' },
+        typescript: { language: 'typescript', version: '5.0.3' },
+        lua: { language: 'lua', version: '5.4.4' },
+        csharp: { language: 'csharp', version: '6.12.0' }
+    };
+
+    var cfg = pistonLangs[currentLang];
+    if (!cfg) {
+        runLocally(code, output, status, execInfo, startTime);
+        return;
+    }
+
+    // Build request body
+    var requestBody = {
+        language: cfg.language,
+        version: cfg.version,
+        files: [
+            {
+                name: getFileName(currentLang),
+                content: code
+            }
+        ]
+    };
+
+    // Try multiple API endpoints
+    var apiUrls = [
+        'https://emkc.org/api/v2/piston/execute',
+        'https://piston-api.fly.dev/api/v2/execute'
+    ];
+
+    function tryApi(index) {
+        if (index >= apiUrls.length) {
+            // All APIs failed — fall back to local
+            console.warn('All Piston APIs failed, using local fallback');
+            runLocally(code, output, status, execInfo, startTime);
+            return;
+        }
+
+        fetch(apiUrls[index], {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
+        })
+        .then(function (response) {
+            if (!response.ok) {
+                throw new Error('Server returned ' + response.status);
+            }
+            return response.json();
+        })
+        .then(function (data) {
+            var elapsed = (performance.now() - startTime).toFixed(0);
+
+            var stdout = '';
+            var stderr = '';
+            var exitCode = 0;
+
+            if (data.run) {
+                stdout = (data.run.stdout || '').trim();
+                stderr = (data.run.stderr || '').trim();
+                exitCode = data.run.code || 0;
+            }
+
+            // Case 1: Error only
+            if (stderr && !stdout) {
+                output.innerHTML = formatOutput(stderr);
+                output.className = 'run-output err';
+                status.textContent = '❌ Error';
+                status.className = 'output-status error';
+                execInfo.innerHTML = '<span>❌ Failed in ' + elapsed + 'ms</span><span>Exit: ' + exitCode + '</span>';
+                showToast('❌ Code has errors — check output', 'error');
+                return;
+            }
+
+            // Case 2: Has output
+            if (stdout) {
+                var outputHtml = formatOutput(stdout);
+
+                // Add warning if there's also stderr
+                if (stderr) {
+                    outputHtml += '\n<span class="output-line" style="color:#ff9800">';
+                    outputHtml += '<span class="output-line-num">⚠️</span>';
+                    outputHtml += escOut(stderr.split('\n')[0]);
+                    outputHtml += '</span>';
+                }
+
+                output.innerHTML = outputHtml;
+                output.className = 'run-output';
+                status.textContent = '✅ Success';
+                status.className = 'output-status success';
+
+                var lineCount = stdout.trim().split('\n').length;
+                execInfo.innerHTML = '<span>✅ Ran in ' + elapsed + 'ms</span><span>' + lineCount + ' line' + (lineCount !== 1 ? 's' : '') + ' | Exit: ' + exitCode + '</span>';
+                showToast('✅ Code executed successfully!', 'success');
+                return;
+            }
+
+            // Case 3: No output, no error
+            output.innerHTML = '<span class="output-line"><span class="output-line-num">1</span>✅ Code executed successfully (no output)</span>\n' +
+                '<span class="output-line"><span class="output-line-num"> </span></span>\n' +
+                '<span class="output-line"><span class="output-line-num">💡</span>Use ' + escOut(getPrintHint(currentLang)) + ' to display output</span>';
+            output.className = 'run-output';
+            status.textContent = '✅ Done';
+            status.className = 'output-status success';
+            execInfo.innerHTML = '<span>✅ Ran in ' + elapsed + 'ms</span><span>No output | Exit: ' + exitCode + '</span>';
+        })
+        .catch(function (error) {
+            console.warn('API ' + (index + 1) + ' failed:', error.message);
+            tryApi(index + 1);
+        });
+    }
+
+    // Start trying APIs
+    tryApi(0);
+}
+
+// HTML/CSS Runner
+function runHTML(code, output, status, execInfo, startTime) {
+    try {
+        var frame = document.createElement('iframe');
+        frame.style.cssText = 'display:none;width:0;height:0;border:none;';
+        frame.sandbox = 'allow-same-origin';
+        document.body.appendChild(frame);
+
+        frame.contentDocument.open();
+        frame.contentDocument.write(code);
+        frame.contentDocument.close();
+
+        var renderedText = (frame.contentDocument.body.innerText || '').trim();
+        document.body.removeChild(frame);
+
+        var elapsed = (performance.now() - startTime).toFixed(0);
+
+        if (renderedText) {
+            output.innerHTML = formatOutput(renderedText);
+            output.className = 'run-output';
+            status.textContent = '✅ Rendered';
+            status.className = 'output-status success';
+            var lineCount = renderedText.split('\n').length;
+            execInfo.innerHTML = '<span>✅ Rendered in ' + elapsed + 'ms</span><span>' + lineCount + ' lines</span>';
+        } else {
+            output.innerHTML = '<span class="output-line"><span class="output-line-num">1</span>✅ HTML/CSS rendered successfully</span>\n' +
+                '<span class="output-line"><span class="output-line-num">2</span>No visible text content (might contain styled elements)</span>';
+            output.className = 'run-output';
+            status.textContent = '✅ Rendered';
+            status.className = 'output-status success';
+            execInfo.innerHTML = '<span>✅ Rendered in ' + elapsed + 'ms</span><span>HTML/CSS</span>';
+        }
+        showToast('✅ Rendered!', 'success');
+    } catch (err) {
+        var elapsed2 = (performance.now() - startTime).toFixed(0);
+        output.innerHTML = '<span class="output-line"><span class="output-line-num">!</span>❌ ' + escOut(err.message) + '</span>';
+        output.className = 'run-output err';
+        status.textContent = '❌ Error';
+        status.className = 'output-status error';
+        execInfo.innerHTML = '<span>❌ Failed in ' + elapsed2 + 'ms</span><span></span>';
+        showToast('❌ Render error', 'error');
+    }
+}
+
+// Local fallback when API is down
+function runLocally(code, output, status, execInfo, startTime) {
+    // JavaScript and TypeScript can run in the browser
+    if (currentLang === 'javascript' || currentLang === 'typescript') {
+        var savedLog = console.log;
+        var savedWarn = console.warn;
+        var savedError = console.error;
+
+        try {
+            var results = [];
+
+            console.log = function () {
+                var args = Array.prototype.slice.call(arguments);
+                var formatted = args.map(function (a) {
+                    if (a === null) return 'null';
+                    if (a === undefined) return 'undefined';
+                    if (typeof a === 'object') {
+                        try { return JSON.stringify(a, null, 2); }
+                        catch (e) { return String(a); }
+                    }
+                    return String(a);
+                });
+                results.push(formatted.join(' '));
+            };
+
+            console.warn = function () {
+                results.push('⚠️ ' + Array.prototype.slice.call(arguments).join(' '));
+            };
+
+            console.error = function () {
+                results.push('❌ ' + Array.prototype.slice.call(arguments).join(' '));
+            };
+
+            var returnVal = eval(code);
+
+            // Restore console
+            console.log = savedLog;
+            console.warn = savedWarn;
+            console.error = savedError;
+
+            var elapsed = (performance.now() - startTime).toFixed(0);
+
+            if (results.length > 0) {
+                output.innerHTML = formatOutput(results.join('\n'));
+                output.className = 'run-output';
+                status.textContent = '✅ Local';
+                status.className = 'output-status success';
+                execInfo.innerHTML = '<span>✅ Ran locally in ' + elapsed + 'ms</span><span>' + results.length + ' line' + (results.length !== 1 ? 's' : '') + '</span>';
+            } else if (returnVal !== undefined) {
+                output.innerHTML = '<span class="output-line"><span class="output-line-num">1</span>' + escOut(String(returnVal)) + '</span>';
+                output.className = 'run-output';
+                status.textContent = '✅ Local';
+                status.className = 'output-status success';
+                execInfo.innerHTML = '<span>✅ Ran locally in ' + elapsed + 'ms</span><span>1 line</span>';
+            } else {
+                output.innerHTML = '<span class="output-line"><span class="output-line-num">1</span>✅ Executed (no output)</span>\n' +
+                    '<span class="output-line"><span class="output-line-num">💡</span>Use console.log() to see output</span>';
+                output.className = 'run-output';
+                status.textContent = '✅ Done';
+                status.className = 'output-status success';
+                execInfo.innerHTML = '<span>✅ Local in ' + elapsed + 'ms</span><span>No output</span>';
+            }
+            showToast('✅ Ran locally!', 'success');
+
+        } catch (err) {
+            // Restore console in case of error
+            console.log = savedLog;
+            console.warn = savedWarn;
+            console.error = savedError;
+
+            var elapsed2 = (performance.now() - startTime).toFixed(0);
+            output.innerHTML = '<span class="output-line"><span class="output-line-num">!</span>❌ ' + escOut(err.name) + ': ' + escOut(err.message) + '</span>\n' +
+                '<span class="output-line"><span class="output-line-num"> </span></span>\n' +
+                '<span class="output-line"><span class="output-line-num">💡</span>Check for typos, missing brackets, or undefined variables</span>';
+            output.className = 'run-output err';
+            status.textContent = '❌ Error';
+            status.className = 'output-status error';
+            execInfo.innerHTML = '<span>❌ Failed in ' + elapsed2 + 'ms</span><span>' + escOut(err.name) + '</span>';
+            showToast('❌ Error in code', 'error');
+        }
+        return;
+    }
+
+    // For Python, Java, C, Lua, C# — show offline message with simulation
+    var elapsed3 = (performance.now() - startTime).toFixed(0);
+    var simLines = simulateOutput(code, currentLang);
+
+    if (simLines.length > 0) {
+        var simHtml = '<span class="output-line" style="color:#ff9800">';
+        simHtml += '<span class="output-line-num">⚠️</span>';
+        simHtml += 'API unavailable — showing simulated output:';
+        simHtml += '</span>\n';
+        simHtml += '<span class="output-line"><span class="output-line-num"> </span></span>\n';
+        simHtml += formatOutput(simLines.join('\n'));
+
+        output.innerHTML = simHtml;
+        output.className = 'run-output';
+        status.textContent = '⚠️ Simulated';
+        status.className = 'output-status waiting';
+        execInfo.innerHTML = '<span>⚠️ Simulated in ' + elapsed3 + 'ms</span><span>' + simLines.length + ' line' + (simLines.length !== 1 ? 's' : '') + '</span>';
+        showToast('⚠️ API offline — simulated output shown', 'info');
+    } else {
+        output.innerHTML = '<span class="output-line"><span class="output-line-num">⚠️</span>API server temporarily unavailable</span>\n' +
+            '<span class="output-line"><span class="output-line-num"> </span></span>\n' +
+            '<span class="output-line"><span class="output-line-num">🔧</span>Try again in a moment</span>\n' +
+            '<span class="output-line"><span class="output-line-num">🌐</span>Or use replit.com for real execution</span>\n' +
+            '<span class="output-line"><span class="output-line-num"> </span></span>\n' +
+            '<span class="output-line"><span class="output-line-num">💡</span>Make sure your code has ' + escOut(getPrintHint(currentLang)) + ' statements</span>';
+        output.className = 'run-output';
+        status.textContent = '⚠️ Offline';
+        status.className = 'output-status waiting';
+        execInfo.innerHTML = '<span>API unavailable</span><span>Try again later</span>';
+    }
+}
+
+// Simulate output for when API is down
+function simulateOutput(code, lang) {
+    var outputs = [];
+    var match;
+
+    if (lang === 'python') {
+        var pyRegex = /print\s*\(([\s\S]*?)\)/g;
+        while ((match = pyRegex.exec(code)) !== null) {
+            var rawArgs = match[1].trim();
+            if (!rawArgs) { outputs.push(''); continue; }
+            var parts = splitArgs(rawArgs);
+            var resolved = parts.map(function (p) {
+                p = p.trim();
+                if (!p) return '';
+                if ((p.charAt(0) === '"' && p.charAt(p.length - 1) === '"') ||
+                    (p.charAt(0) === "'" && p.charAt(p.length - 1) === "'")) {
+                    return p.substring(1, p.length - 1);
+                }
+                try { var val = eval(p); if (val !== undefined) return String(val); } catch (e) {}
+                return p;
+            });
+            outputs.push(resolved.join(' '));
+        }
+    } else if (lang === 'java') {
+        var javaRegex = /System\.out\.println\s*\(\s*([\s\S]*?)\s*\)/g;
+        while ((match = javaRegex.exec(code)) !== null) {
+            var arg = match[1].trim();
+            if (arg.charAt(0) === '"' && arg.charAt(arg.length - 1) === '"') {
+                arg = arg.substring(1, arg.length - 1);
+            }
+            outputs.push(arg);
+        }
+    } else if (lang === 'c') {
+        var cRegex = /printf\s*\(\s*"((?:[^"\\]|\\.)*)"/g;
+        while ((match = cRegex.exec(code)) !== null) {
+            var text = match[1].replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\\\/g, '\\');
+            text.split('\n').forEach(function (line) {
+                if (line !== '') outputs.push(line);
+            });
+        }
+    } else if (lang === 'lua') {
+        var luaRegex = /print\s*\(([\s\S]*?)\)/g;
+        while ((match = luaRegex.exec(code)) !== null) {
+            var luaArg = match[1].trim();
+            if ((luaArg.charAt(0) === '"' && luaArg.charAt(luaArg.length - 1) === '"') ||
+                (luaArg.charAt(0) === "'" && luaArg.charAt(luaArg.length - 1) === "'")) {
+                outputs.push(luaArg.substring(1, luaArg.length - 1));
+            } else {
+                outputs.push(luaArg);
+            }
+        }
+    } else if (lang === 'csharp') {
+        var csRegex = /Console\.WriteLine\s*\(\s*([\s\S]*?)\s*\)/g;
+        while ((match = csRegex.exec(code)) !== null) {
+            var csArg = match[1].trim();
+            if (csArg.charAt(0) === '"' && csArg.charAt(csArg.length - 1) === '"') {
+                csArg = csArg.substring(1, csArg.length - 1);
+            }
+            outputs.push(csArg);
+        }
+    }
+
+    return outputs;
+}
+
+function splitArgs(str) {
+    var parts = [];
+    var inStr = false;
+    var strChar = '';
+    var current = '';
+    var depth = 0;
+
+    for (var i = 0; i < str.length; i++) {
+        var c = str.charAt(i);
+
+        if (!inStr && (c === '"' || c === "'")) {
+            inStr = true;
+            strChar = c;
+            current += c;
+        } else if (inStr && c === strChar) {
+            inStr = false;
+            current += c;
+        } else if (!inStr && c === '(') {
+            depth++;
+            current += c;
+        } else if (!inStr && c === ')') {
+            depth--;
+            current += c;
+        } else if (!inStr && c === ',' && depth === 0) {
+            parts.push(current.trim());
+            current = '';
+        } else {
+            current += c;
+        }
+    }
+
+    if (current.trim()) {
+        parts.push(current.trim());
+    }
+
+    return parts;
 }
 
 // =============================================
