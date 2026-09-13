@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CodeLab - Learn to Code</title>
+    <meta name="description" content="Learn programming step by step - Python, JavaScript, HTML, CSS, Java, C, C#, Lua, TypeScript, GDScript">
+    <meta name="author" content="Samuel Giftson">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -35,9 +37,14 @@
 <div class="language-selector">
     <button class="lang-btn active" onclick="switchLanguage('python',this)">🐍 Python</button>
     <button class="lang-btn" onclick="switchLanguage('javascript',this)">⚡ JavaScript</button>
+    <button class="lang-btn" onclick="switchLanguage('html',this)">🌐 HTML & CSS</button>
+    <button class="lang-btn" onclick="switchLanguage('css',this)">🎨 CSS Advanced</button>
+    <button class="lang-btn" onclick="switchLanguage('typescript',this)">🔷 TypeScript</button>
     <button class="lang-btn" onclick="switchLanguage('java',this)">☕ Java</button>
     <button class="lang-btn" onclick="switchLanguage('c',this)">⚙️ C</button>
-    <button class="lang-btn" onclick="switchLanguage('html',this)">🌐 HTML & CSS</button>
+    <button class="lang-btn" onclick="switchLanguage('csharp',this)">💜 C#</button>
+    <button class="lang-btn" onclick="switchLanguage('lua',this)">🌙 Lua</button>
+    <button class="lang-btn" onclick="switchLanguage('gdscript',this)">🎮 GDScript</button>
 </div>
 
 <div class="content-area">
@@ -50,7 +57,9 @@
             <div class="progress-fill" id="progressFill" style="width:0%"></div>
         </div>
     </div>
+
     <div class="topic-nav" id="topicNav"></div>
+
     <div id="lessonContent"></div>
     <div id="practiceSection" style="display:none"></div>
     <div id="quizSection" style="display:none"></div>
